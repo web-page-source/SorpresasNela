@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SorpresasNela</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="cart-icon-button" class="cart-floating-btn" onclick="toggleCarrito()" style="display:none;">
+        <span>🛒</span>
+        <span id="cart-count" class="cart-badge">0</span>
+    </div>
+
+    <div id="btn-siguiente-flotante" class="next-floating-btn" onclick="irAlFormulario() ">
+    Siguiente
+</div>
+
+    <header class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <h1 class="logo">Sorpresas Nela</h1>
+        <button class="reserve-btn" onclick="showPage('reserva-seleccion')">Reservar</button>
+    </header>
+
+    <div id="sideMenu" class="side-menu">
+        <button class="close-btn" onclick="toggleMenu()">×</button>
+        <a href="#" onclick="showPage('equipo')"> •Nuestro equipo</a>
+        <a href="#" onclick="showPage('ofertas')"> •Ofertas</a>
+        <a href="#" onclick="showPage('opiniones')"> •Decoraciones</a>
+    </div>
+
+    <main id="content">
+<section id="inicio" class="page active">
+            <div class="hero-content">
+                <h2 class="main-title">¿Quiénes somos?</h2>
+                <p class="tagline">Eficiencia • Talento • Creatividad</p>
+                
+                <div class="description-box">
+                    <p>
+                        ¡Bienvenido! Aquí en <strong>Sorpresas Nela</strong> somos especialistas en transformar sus fechas especiales en recuerdos eternos. 
+                        Desde la planificación de la <strong>decoración</strong> hasta la selección de los <strong>mejores menús</strong>, 
+                        nuestro equipo se encarga de cada detalle para que usted y su familia solo se preocupen por disfrutar. Si desea una boda de ensueño, o una celebración de cumpleaños memorable, estamos a su servicio para hacerlo <strong>REALIDAD</strong>.
+                    </p>
+                </div>
+
+<div class="video-section">
+    <h2>"Creamos momentos INOLVIDABLES"</h2>
+    <div class="video-container">
+        <div class="video-card card-bodas" onclick="abrirGaleriaVideos('bodas')" id="card-bodas">
+            <div class="video-overlay"></div> 
+            <span class="video-label">Ocasiones Románticas</span>
+        </div>
+        
+        <div class="video-card card-cumple" onclick="abrirGaleriaVideos('cumple')" id="card-cumple">
+            <div class="video-overlay"></div>
+            <span class="video-label">Cumpleaños Especiales</span>
+        </div>
+
+        <div class="video-card card-familia" onclick="abrirGaleriaVideos('familia')" id="card-familia">
+            <div class="video-overlay"></div>
+            <span class="video-label">Encuentros Familiares</span>
+        </div>
+    </div>
+</div>
+
+<div id="video-galeria-modal" class="video-modal-overlay">
+    <div class="video-modal-content">
+        <span class="video-close-btn" onclick="cerrarGaleriaVideos()">&times;</span>
+        
+        <h3 id="video-galeria-titulo">Galería de Momentos</h3>
+        
+        <div id="video-reproductores-container" class="video-mosaico-grid">
+            </div>
+        
+        <p class="instruccion-video">Toca un video para verlo en pantalla completa</p>
+    </div>
+</div>
+            </div>
+            <div class="location-section">
+                <h3 class="section-subtitle">Nuestra Ubicación</h3>
+                <div class="location-card">
+                    <p>📍 <strong>Sede Central:</strong> Poblado Tacajó, Municipio Báguanos, Holguín, Cuba</p>
+                    <p class="horario">Atención: Lunes a Domingo | 9:00 AM - 6:00 PM</p>
+                </div>
+
+               
+                <p class="travel-intro">También realizamos viajes y montajes de eventos en:</p>
+                
+                <div class="travel-badges">
+                    <span class="badge">Holguín</span>
+                    <span class="badge">Banes</span>
+                    <span class="badge">Deleite</span>
+                    <span class="badge">Bijarú</span>
+                    <span class="badge">Báguanos</span>
+                </div>
+            </div>
+
+                <div class="social-container">
+    <p class="social-title">Síguenos en nuestras redes:</p>
+    <div class="social-links">
+        <a href="https://www.facebook.com/profile.php?id=61581149286955" target="_blank" class="social-label fb">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook">
+            <span>Facebook</span>
+        </a>
+
+        <a href="https://www.instagram.com/sorpresasnela" target="_blank" class="social-label ig">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram">
+            <span>Instagram</span>
+        </a>
+    </div>
+</div>
+        </section>
+
+      <section id="equipo" class="page">
+    <button class="back-btn" onclick="showPage('inicio')">← Volver</button>
+    <h2>"Nuestro objetivo es su FELICIDAD"</h2>
+    
+    <div class="equipo-grid">
+        <div class="worker-card">
+            <img src="img/nela.jpg" alt="Daniela Cabrera">
+            <div class="info-worker">
+                <p><strong>Daniela Cabrera</strong></p>
+                <span>Decoradora / Organizadora</span>
+            </div>
+        </div>
+
+        <div class="worker-card">
+            <img src="img/adianita.jpg" alt="Adiannis Ferrero">
+            <div class="info-worker">
+                <p><strong>Adiannis Ferrero</strong></p>
+                <span>Cantante / Animadora</span>
+            </div>
+        </div>
+
+        <div class="worker-card">
+            <img src="img/animadorA.jpg" alt="Mailin Ramírez">
+            <div class="info-worker">
+                <p><strong>Mailin Ramírez</strong></p>
+                <span>Conductora / Payasita</span>
+            </div>
+        </div>
+
+        <div class="worker-card">
+            <img src="img/mamadeadi.jpg" alt="Adianis Santiesteban">
+            <div class="info-worker">
+                <p><strong>Adianis Santiesteban</strong></p>
+                <span>Cantante</span>
+            </div>
+        </div>
+
+        <div class="worker-card">
+            <img src="img/redes.jpg" alt="Aliannis Miraldea">
+            <div class="info-worker">
+                <p><strong>Aliannis Miraldea</strong></p>
+                <span>Camarógrafa</span>
+            </div>
+        </div>
+
+        <div class="worker-card">
+            <img src="img/conejita.jpg" alt="Janet González">
+            <div class="info-worker">
+                <p><strong>Janet González</strong></p>
+                <span>Animadora</span>
+            </div>
+        </div>
+    </div>
+</section>
+        <section id="ofertas" class="page">
+            <button class="back-btn" onclick="showPage('inicio')">← Volver</button>
+            <h2 class="section-title">"Nuestro Catálogo"</h2>
+            <div id="catalogo-container" class="grid-ofertas">
+            </div>
+        </section>
+
+    <section id="reserva-seleccion" class="page">
+    <button class="back-btn" onclick="showPage('inicio')">
+            ←Inicio
+        </button>
+        <h2 class="section-title">"Conforma tu Pedido"</h2>
+        <p class="tagline">Si desea algo y no lo encuentra aquí puede agregarlo en las notas posteriores</p>
+                
+    <div id="reserva-selector-container" class="grid-ofertas"></div>
+</section>
+
+<section id="reserva-datos" class="page">
+    <button class="back-btn" onclick="showPage('reserva-seleccion')">← Ofertas</button>
+    
+    <div class="form-reserva">
+        <h3 class="pregunta-formulario" style="text-align: center; margin-bottom: 5px;">¿Desde dónde realizas la reserva?</h3>
+        <p style="text-align: center; font-size: 0.85rem; color: #7C5136; font-style: italic; margin-bottom: 15px;">
+            Selecciona una opción para rellenar el formulario
+        </p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button type="button" id="btn-pago-cuba" class="opcion-pago" onclick="seleccionarOrigen('cuba')" 
+                style="flex: 1; padding: 12px; border: 1px solid #7C5136; border-radius: 10px; background: white; cursor: pointer; font-family: 'Bahnschrift SemiBold';">
+                Cuba (CUP)
+            </button>
+            <button type="button" id="btn-pago-exterior" class="opcion-pago" onclick="seleccionarOrigen('exterior')" 
+                style="flex: 1; padding: 12px; border: 1px solid #7C5136; border-radius: 10px; background: white; cursor: pointer; font-family: 'Bahnschrift SemiBold';">
+                Exterior (Zelle)
+            </button>
+        </div>
+
+        <div id="display-total-dinamico" style="display: none; text-align: center; font-size: 1.3rem; font-weight: bold; padding: 15px; background: #fdf6f2; border-radius: 10px; margin-bottom: 20px; border: 1px solid #D7C6B3; color: #7C5136;">
+        </div>
+
+        <div id="campos-detalles-reserva" style="display: none;">
+            <div id="resumen-final-datos" style="background: #fdf6f2; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed #7C5136;">
+            </div>
+            <div class="campo-transporte" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+    <label style="font-weight: bold; display: block; margin-bottom: 10px;text-align: center;">¿Necesita transportarse nuestro equipo?</label>
+    
+    <div style="display: flex; gap: 20px; margin-bottom: 10px;justify-content:center;">
+        <label ><input type="radio" name="transporte-sn" value="no" checked onclick="toggleMenuTransporte(false)"> No</label>
+        <label><input type="radio" name="transporte-sn" value="si" onclick="toggleMenuTransporte(true)"> Sí</label>
+    </div>
+
+    <div id="menu-municipios" style="display: none; margin-left: 10px;margin-bottom: 10px;">
+        <label for="municipio-select" style="font-size: 0.9rem; color: #555;">Seleccione lugar de destino:</label>
+        <select id="municipio-select" onchange="actualizarResumen(); actualizarResumenFinalEnFormulario();" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-top: 5px;margin-bottom: 8px;">    <option value="0">Seleccionar ubicación...</option>
+            <option value="40">Holguín (+40 Zelle)</option>
+            <option value="35">Banes (+35 Zelle)</option>
+            <option value="30">Deleite (+30 Zelle)</option>
+            <option value="10">Bijarú (+10 Zelle)</option>
+            <option value="10">Báguanos (+10 Zelle)</option>
+            <option value="0">Otro <small>(Aclarar en notas)</small></option>
+        </select>
+    </div>
+</div>
+
+            <h3>Información Necesaria</h3>
+            <input type="text" id="lugar" placeholder="Dirección exacta del evento">
+            <input type="datetime-local" id="fecha">
+            <p class="tagline">Si desea el servicio de remesa puede agregarlo aquí</p>
+           <textarea id="notas-provisionales" placeholder="Notas adicionales... ej.(canción elegida ,animado elegido ,aclarar tipo de cerveza ,temática de la decoración)" rows="4"></textarea>
+            
+            <button class="reserve-btn" onclick="finalizarPedido()" style="width:100%; margin-top:20px;">Confirmar y enviar por WhatsApp</button>
+        </div>
+    </div>
+</section>
+
+
+       <section id="opiniones" class="page">
+    <button class="back-btn" onclick="showPage('inicio')">← Volver</button>
+    
+    <h2>"Transformamos lo normal en ESPECIAL"</h2>
+    <p style="text-align: center; color: #7C5136; margin-bottom: 30px;">Nuestras decoraciones incluyen :</p>
+
+    <div class="decoracion-dos-columnas">
+        
+        <div class="deco-item">
+            <div class="deco-foto" style="background-image: url('img/flores.jpg');"></div>
+            <div class="deco-detalles">
+                <h3>Flores</h3>
+            </div>
+        </div>
+
+        <div class="deco-item">
+            <div class="deco-foto" style="background-image: url('img/mantel.jpg');"></div>
+            <div class="deco-detalles">
+                <h3>Manteles</h3>
+            </div>
+        </div>
+
+        <div class="deco-item">
+            <div class="deco-foto" style="background-image: url('img/boda.jpg');"></div>
+            <div class="deco-detalles">
+                <h3>Centros de mesa</h3>
+            </div>
+        </div>
+
+        <div class="deco-item">
+            <div class="deco-foto" style="background-image: url('img/globos.jpg');"></div>
+            <div class="deco-detalles">
+                <h3>Globos</h3>
+            </div>
+        </div>
+        <div class="deco-item">
+            <div class="deco-foto" style="background-image: url('img/forro.jpg');"></div>
+            <div class="deco-detalles">
+                <h3>Forros de asientos</h3>
+            </div>
+        </div>
+
+    </div>
+</section>
+    </main>
+
+    <div id="carrito-overlay" class="overlay" onclick="toggleCarrito()">
+        <div class="carrito-modal" onclick="event.stopPropagation()">
+            <h3>Su Pedido</h3>
+            <div id="resumen-pedido"></div>
+            <div id="total-acumulado" class="total-box"></div>
+            
+            <button class="reserve-btn" onclick="irAlFormulario()">Siguiente</button>
+            <button class="close-link" onclick="toggleCarrito()">Continuar comprando</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

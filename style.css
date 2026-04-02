@@ -1,0 +1,1082 @@
+
+:root {
+    --color-texto: #7C5136;      /* El más oscuro */
+    --color-bordes: #A97F60;     /* El segundo */
+    --color-botones: #C8A88D;    /* El tercero */
+    --color-fondo-suave: #D7C6B3; /* El cuarto */
+    --color-detalles: #DED6CC;    /* El quinto (más claro) */
+    --blanco-crema: #F9F7F2;      /* Fondo general */
+}
+
+h1 ,h2 ,h3,h4{
+    font-family: "Adlery";
+
+}
+
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--color-texto); /* Aplicamos el color más oscuro a todo el texto */
+}
+
+
+body {
+    background-color: var(--blanco-crema);
+}
+
+/* Header Fijo */
+.navbar {
+    position: fixed;
+    top: 0; width: 100%; height: 70px;
+    background: white; 
+    border-bottom: 2px solid var(--color-bordes); /* Borde con el segundo color */
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 15px; z-index: 1000;
+}
+
+.logo { 
+    font-size: 1.4rem; 
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Menú Lateral */
+.side-menu {
+    position: fixed;
+    font-family: "Adlery";
+    left: -260px; top: 0; width: 260px; height: 100%;
+    background:rgba(222, 214, 204, 0.9) ;
+    transition: 0.4s ease-in-out; 
+    border-right:1px solid var(--color-fondo-suave);
+    padding-top: 80px; z-index: 2000;
+}
+
+
+.side-menu.active { left: 0; }
+
+/* Botones con el 3er Color */
+.item button, .send-btn {
+    background-color: var(--color-fondo-suave);
+    color: white;
+    font-family:"Bahnschrift SemiBold";
+    border: 1px solid var(--color-bordes);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+
+
+/* Tarjetas y Secciones */
+.page { display: none; padding: 100px 20px 40px; }
+.page.active { display: block; }
+
+/* Contenedor del equipo */
+.equipo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 15px;
+    padding: 10px;
+}
+
+/* La tarjeta (Card) */
+.worker-card {
+    background-color: white; /* El fondo de la card */
+    border: 2px solid var(--color-bordes);
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra la foto si no ocupa todo el ancho */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* La foto dentro de la card */
+.worker-card img {
+    width: 100%;
+    height: 140px; /* Altura controlada */
+    object-fit: cover; /* Ajusta la imagen sin deformarla */
+    border-bottom: 2px solid var(--color-bordes);
+}
+
+/* Contenedor del nombre y cargo */
+.info-worker {
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+.info-worker p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-family:"Bahnschrift SemiBold";
+    color: var(--color-texto);
+}
+
+.info-worker span {
+    font-size: 0.75rem;
+    color: #7C5136;
+    font-family:"Bahnschrift SemiBold";
+    display: block;
+    margin-top: 4px;
+}
+
+
+.back-btn {
+    background: none;
+    border: 1px solid var(--color-bordes);
+    color: var(--color-bordes);
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-family:"Bahnschrift SemiBold";
+}
+
+/* Formulario */
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid var(--color-detalles); /* Uso del 5to color */
+    border-radius: 8px;
+    background-color: var(--blanco-crema);
+}
+
+.hero-content {
+    text-align: center;
+}
+
+.main-title {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tagline {
+    color: var(--color-bordes); /* El 2do color */
+    font-style: italic;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.description-box {
+    background-color: var(--color-detalles); /* El 5to color, muy suave */
+    padding: 20px;
+    border-radius: 15px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: justify;
+    border: 1px solid var(--color-fondo-suave); /* El 4to color */
+}
+
+
+/* --- ESTILO DE LAS TARJETAS (CARDS) --- */
+.video-section {
+    padding: 20px 10px;
+    text-align: center;
+    background-color: #fdf6f2; /* Un fondo muy clarito */
+}
+
+.video-section h2 {
+    color: #7C5136;
+    margin-bottom: 40px;
+
+    font-size: 1.5rem;
+}
+
+.video-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap; /* Para móviles */
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.video-card {
+    width: 400px;
+    height: 200px;
+    border-radius: 20px;
+    position: relative; /* Para el label y overlay */
+    overflow: hidden; /* Para que el fondo no se salga */
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    /* Centrado interno */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Configuración por defecto del fondo */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Efectos al pasar el mouse (Hover) */
+.video-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(124, 81, 54, 0.2);
+}
+
+/* EFECTO CLICK (Para que se note que es un botón) */
+.video-card:active {
+    transform: scale(0.95);
+}
+
+.video-overlay  {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transition: background 0.3s ease;
+}
+
+/* Imágenes de fondo corregidas */
+.card-bodas {
+    background-image: url("img/boda2.jpg"); 
+}
+
+.card-cumple {
+    background-image: url("img/cumple.jpg");
+}
+
+.card-familia {
+    background-image: url("img/cumplefondo.jpg"); 
+}
+.video-card:hover .video-overlay {
+    background: rgba(124, 81, 54, 0.4); /* Se vuelve café al hacer hover */
+}
+
+.video-label {
+    position: relative; 
+    color: var(--blanco-crema);    
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    z-index: 10;
+}
+
+/* --- ESTILO DEL MODAL DE GALERÍA (NUEVO) --- */
+.video-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); /* Fondo oscuro translúcido */
+    z-index: 5000; /* Prioridad máxima */
+    display: none; /* JS lo muestra */
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    
+    /* Animación de entrada suave */
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* Clase que JS añadirá para mostrar el modal */
+.video-modal-overlay.open {
+    display: flex;
+    opacity: 1;
+}
+
+.video-modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 25px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto; /* Scroll si hay muchos videos */
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.video-modal-content h3 {
+    color: #7C5136;
+    margin-top: 0;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 1.6rem;
+    font-family: "Adlery";
+}
+
+/* Botón de cerrar (X) */
+.video-close-btn {
+    position: absolute;
+    top: 1px;
+    right: 15px;
+    font-size: 2.5rem;
+    color: #7C5136; /* Tu color beige sólido */
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.video-close-btn:hover {
+    color: #D7C6B3;
+}
+
+/* --- ESTILO DEL MOSAICO DE VIDEOS (NUEVO) --- */
+
+.video-mosaico-grid {
+    display: grid;
+    /* Crea 3 columnas iguales por defecto */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px; /* Espacio pequeño entre cuadrados */
+    padding: 10px 0;
+    max-width: 100%;
+}
+
+/* El contenedor del video individual */
+.video-mosaico-item {
+    width: 100%;
+    /* Truco para forzar que sea un cuadrado perfecto basado en el ancho */
+    aspect-ratio: 1 / 1; 
+    
+    background-color: rgba(215, 198, 179, 0.2); /* #D7C6B3 muy claro */
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(215, 198, 179, 0.4);
+}
+
+.video-mosaico-item:hover {
+    transform: scale(1.03);
+    box-shadow: 0 5px 15px rgba(124, 81, 54, 0.2);
+}
+
+/* El elemento <video> real dentro del cuadrado */
+.video-mosaico-item video {
+    width: 100%;
+    height: 100%;
+    /* CRÍTICO: Cubre el cuadrado cortando los bordes del video vertical */
+    object-fit: cover; 
+    
+    /* Ocultamos los controles en modo mosaico para que se vea limpio */
+}
+
+/* Icono de "Play" superpuesto para indicar interactividad */
+.video-mosaico-item::after {
+    content: '▶'; 
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 1.5rem;
+    background: rgba(0,0,0,0.4);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+    z-index: 2;
+}
+
+/* Instrucción de texto bajo el mosaico */
+.instruccion-video {
+    text-align: center;
+    color: #7C5136;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+/* Ajuste para móviles pequeños (2 columnas) */
+@media (max-width: 400px) {
+    .video-mosaico-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* --- ESTILO CUANDO EL VIDEO ESTÁ EN FULLSCREEN (NUEVO) --- */
+/* Cuando el navegador entra en pantalla completa, queremos que el video se vea entero */
+video:fullscreen {
+    object-fit: contain !important; /* Muestra el video vertical completo sin cortar */
+    background-color: black; /* Fondo negro para los lados */
+}
+/* Prefijos para otros navegadores */
+video:-webkit-full-screen { object-fit: contain !important; background-color: black; }
+video:-ms-fullscreen { object-fit: contain !important; background-color: black; }
+
+.section-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--color-texto);
+    text-transform: uppercase;
+}
+
+
+.card-oferta img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 3px solid var(--color-bordes); /* 2do color */
+}
+
+
+.precio-tag {
+    display: inline-block;
+    background-color: var(--color-detalles); /* 5to color #DED6CC */
+    padding: 5px 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.btn-seleccionar {
+    background-color: var(--color-botones); /* 3er color #C8A88D */
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    margin-top: 15px;
+    border-radius: 0 0 15px 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-reserva {
+    background: white;
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 15px;
+    border: 2px dashed var(--color-bordes);
+}
+
+/* Botón del Menú Estilizado */
+.menu-btn {
+    background: var(--color-detalles); /* 5to color #DED6CC como fondo suave */
+    border: 1px solid var(--color-bordes); /* 2do color #A97F60 */
+    width: 40px;
+    height: 35px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Las rayitas del menú */
+.menu-btn span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--color-texto); /* El más oscuro #7C5136 */
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+/* Efecto al presionar (opcional para feedback visual) */
+.menu-btn:active {
+    background-color: var(--color-fondo-suave); /* 4to color #D7C6B3 */
+    transform: scale(0.95);
+}
+
+/* Estilo para los enlaces DENTRO del Sidebar */
+.side-menu a {
+    padding: 20px;
+    text-decoration: none;
+    color: var(--color-texto); /* Letras claras sobre fondo oscuro */
+    display: block;
+    font-weight: bold;
+    font-family:"Adlery";
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(215, 198, 179, 0.2); /* 4to color con transparencia */
+}
+
+/* Botón de cerrar dentro del Sidebar */
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--color-texto);
+    font-size: 2.5rem;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.location-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    text-align: center;
+    border-top: 1px solid var(--color-fondo-suave); /* 4to color */
+}
+
+.section-subtitle {
+    color: var(--color-bordes); /* 2do color #A97F60 */
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.location-card {
+    background-color: var(--color-detalles);
+    border: 0.2px solid var(--color-bordes);
+    padding: 20px;
+    text-align: center;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.horario {
+    font-size: 0.85rem;
+    color: var(--color-bordes);
+    margin-top: 5px;
+}
+
+.travel-intro {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+/* Contenedor de etiquetas de viaje */
+.travel-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.badge {
+    background-color: var(--color-detalles); /* 5to color #DED6CC */
+    color: var(--color-texto); /* 1er color #7C5136 */
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+     font-family:"Bahnschrift SemiBold";
+    border: 1px solid var(--color-fondo-suave);
+}
+
+
+.reserve-btn {
+    background-color: var(--color-detalles); /* 3er color #C8A88D */
+    color: var(--color-texto);
+    padding: 10px 18px;
+    cursor: pointer;
+    font-family:"Bahnschrift SemiBold";
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 1px solid var(--color-bordes);
+    box-shadow: 0 2px 5px rgba(124, 81, 54, 0.2);
+}
+
+/* Títulos de categorías en el catálogo */
+.cat-titulo {
+    grid-column: 1 / -1;
+    color: var(--color-texto);
+    border-bottom: 2px solid var(--color-bordes);
+    padding-bottom: 5px;
+    margin: 25px 0 15px 0;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+/* Nota especial para las pizzas */
+.nota-importante {
+    background-color: var(--color-detalles); /* Color 5 */
+    color: var(--color-texto);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    font-family:"Bahnschrift SemiBold";
+    border: 1px dashed var(--color-bordes);
+    margin-bottom: 20px;
+    grid-column: 1 / 3; /* Ocupa de la columna 1 a la 3 (todo el ancho) */
+    width: 100%;
+}
+
+.nota-prod {
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+
+/* 1. EL GRID: Estructura de 2 columnas */
+.grid-ofertas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px;
+    padding: 10px 0;
+    align-items: stretch;
+}
+
+/* La tarjeta ahora es el botón */
+.card-oferta {
+    cursor: pointer;
+    transition: transform 0.1s ease; /* Respuesta rápida al toque */
+    user-select: none; /* Evita que se sombree el texto al dar muchos clics */
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-bordes);
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Efecto de "Presionado" */
+.card-oferta:active {
+    transform: scale(0.96); /* Se encoge sutilmente al tocar */
+    filter: brightness(0.9); /* Se oscurece un pelín para dar feedback */
+}
+
+/* Versión Unificada de Info Oferta */
+.info-oferta {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.nombre-producto {
+    font-size: 0.85rem;
+    color: var(--color-texto);
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    line-clamp: inherit;/* Limita a 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.4rem; 
+}
+
+.card-oferta img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-bottom: 2px solid var(--color-bordes);
+}
+
+
+.precio-box {
+    background: var(--color-detalles);
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-top: auto; /* Los imanta al fondo de la tarjeta */
+}
+.p-zelle {
+    font-weight: bold;
+    color: #2e7d32;
+    font-size: 0.9rem;
+}
+
+.p-cup {
+    font-size: 0.75rem;
+    color: var(--color-bordes);
+}
+
+.carrito-resumen {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid var(--color-bordes);
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+
+.total-box {
+    text-align: right;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: var(--color-texto);
+}
+
+#notas-provisionales {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--color-bordes);
+    background: var(--color-detalles);
+    font-family: inherit;
+    resize: none;
+}
+
+/* Pantalla oscura de fondo (Overlay) */
+.overlay {
+    display: none; 
+    position: fixed; 
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); 
+    z-index: 9999; /* Por encima de todo */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Caja del carrito */
+.carrito-modal {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Botón flotante Carrito (Superior Derecha) */
+.cart-floating-btn {
+    position: fixed;
+    top: 80px;    /* Distancia desde el borde superior */
+    right: 20px;  /* Distancia desde el borde derecho */
+    
+    background:var(--color-fondo-suave); /* Tu color café principal */
+    color: white;
+    border: 1px solid var(--color-bordes);
+    width: 55px; 
+    height: 55px;
+    border-radius: 50%;
+    
+    /* Centrado del icono */
+    display: none; /* JS controla la visibilidad */
+    justify-content: center;
+    align-items: center;
+    
+    z-index: 2000; /* Prioridad máxima por encima de todo */
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Efecto de pulsación al hacer clic */
+.cart-floating-btn:active {
+    transform: scale(0.85);
+}
+
+/* El Badge (Número de productos) */
+.cart-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #e74c3c; /* Rojo vibrante */
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid white; /* Contorno para que resalte sobre el café */
+}
+
+/* Botón Siguiente Flotante (Derecha) */
+.next-floating-btn {
+    position: fixed;
+    bottom: 30px; right: 20px;
+    background-color: var(--color-fondo-suave); 
+    color:var(--color-texto);
+    border: 1px solid var(--color-bordes);
+    padding: 15px 25px;
+    border-radius: 50px; 
+    text-transform: uppercase;
+    font-family:"Bahnschrift SemiBold";
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    cursor: pointer;
+    display: none; 
+    transition: transform 0.2s;
+}
+
+.next-floating-btn:active {
+    transform: scale(0.9);
+}
+
+.close-link {
+    background: none;
+    border: none;
+    color: #7C5136;
+    text-decoration: underline;
+    width: 100%;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.back-home-btn {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family:"Bahnschrift SemiBold";
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.back-home-btn:hover {
+    background: #7C5136; /* Tu color principal */
+    color: white;
+    border-color: #7C5136;
+}
+
+/* Contenedor principal a dos columnas */
+.decoracion-dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Fuerza las dos columnas */
+    gap: 15px; /* Espacio entre tarjetas */
+    padding: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Tarjeta de Decoración */
+.deco-item {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid var(--color-bordes) ; /* Color #D7C6B3 suave */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Espacio para la foto */
+.deco-foto {
+    width: 100%;
+    height: 150px; /* Altura fija para que todas sean iguales */
+    background-size: cover;
+    border-bottom: 2px solid var(--color-bordes);
+    background-position: center;
+    background-color: #f9f9f9;
+}
+
+/* Bloque de texto */
+.deco-detalles {
+    padding: 12px;
+    text-align: center;
+}
+
+.deco-detalles h3 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: #7C5136;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+/* Precio con fondo beige claro */
+.deco-precio {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #7C5136;
+    background-color: rgba(215, 198, 179, 0.3); /* #D7C6B3 suave */
+    padding: 4px 12px;
+    border-radius: 10px;
+}
+
+/* Ajuste para móviles (opcional) */
+@media (max-width: 400px) {
+    .decoracion-dos-columnas {
+        gap: 10px;
+    }
+    .deco-detalles h3 {
+        font-size: 0.9rem;
+    }
+}
+
+.nota-producto-card {
+    font-size: 0.8rem;
+    color: #7C5136;
+    background-color: rgba(215, 198, 179, 0.25); /* #D7C6B3 suave */
+    padding: 5px 8px;
+    border-radius: 5px;
+    margin: 5px 0 10px 0;
+    line-height: 1.2;
+    font-style: italic;
+    border-left: 2px solid #D7C6B3; /* Detalle visual */
+}
+
+
+
+#ofertas.active .card-oferta {
+    cursor: default;
+    transform: none !important; /* Evita que se mueva al tocarla */
+    filter: none !important;    /* Evita que brille o se oscurezca */
+}
+
+/* --- ESTILOS UNIFICADOS PARA BOTONES DE PAGO --- */
+
+/* 1. Estado Base (Sin seleccionar, sin hover) */
+.opcion-pago {
+    /* Mantenemos tus estilos en línea como base, pero añadimos transiciones */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #7C5136 !important; /* Tu color de borde café */
+    background-color: white !important;
+    color: inherit;
+    font-family: 'Bahnschrift SemiBold', sans-serif;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(124, 81, 54, 0.05);
+}
+
+/* 2. ESTADO UNIFICADO: HOVER (Pasar mouse) Y SELECCIONADO (Activo) */
+/* Al unir las reglas con una coma, comparten el mismo estilo exacto */
+.opcion-pago:hover,
+.opcion-pago.seleccionada {
+    background-color: var(--color-texto)  !important; /* Tu color beige de hover/activo */
+    color: var(--blanco-crema)!important;           /* Texto café oscuro */
+    border-color:var(--blanco-crema) !important;    /* Borde café oscuro */
+    transform: translateY(-2px);         /* Pequeña elevación visual */
+    box-shadow: 0 4px 10px rgba(124, 81, 54, 0.15);
+}
+
+/* 3. Efecto de pulsación (Click rápido en móvil) */
+.opcion-pago:active {
+    transform: scale(0.96);
+}
+
+/* Animación suave para la aparición del resto del formulario */
+#campos-detalles-reserva {
+    animation: slideUpFade 0.6s ease forwards;
+    
+}
+#campos-detalles-reserva h3{
+    text-align: center;
+}
+
+@keyframes slideUpFade {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.social-container {
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.social-title {
+    font-family: 'Segoe UI', sans-serif;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: transform 0.2s, background 0.2s;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Estilo específico para Facebook */
+.social-label.fb {
+    background-color: #f0f2f5;
+    color: #1877F2;
+}
+
+/* Estilo específico para Instagram */
+.social-label.ig {
+    background-color: #fff0f5;
+    color: #E4405F;
+}
+
+.social-label img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Efecto al pasar el mouse */
+.social-label:hover {
+    transform: translateY(-3px);
+    filter: brightness(0.95);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.video-card-fb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 16; /* Formato vertical de celular */
+
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background-image: url('img/back.jpg');
+
+    justify-content: center;
+    transition: transform 0.3s;
+}
+
+.video-card-fb:hover {
+    transform: scale(1.03);
+}
+
+
+.play-overlay {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-family: sans-serif;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.play-overlay img {
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+}
+
