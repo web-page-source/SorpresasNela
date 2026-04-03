@@ -311,8 +311,7 @@ function finalizarPedido() {
     }
 
     // 1. Lista de productos
-    let listaProductos = carrito.map(i => `-${i.cantidad}x ${i.nombre}`);
-
+   let listaProductos = carrito.map(i => "✅ " + i.cantidad + "x " + i.nombre).join("\n");
     // 2. Cálculo de totales (Base + Transporte)
     let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
     let costoTransporteZelle = 0;
@@ -335,17 +334,20 @@ function finalizarPedido() {
         totalFinalTexto = `${totalZelleFinal.toLocaleString()} Zelle`;
     }
 
-   const textoMensaje = `NUEVO PEDIDO\n\n` +
-                         `Detalle:\n${listaProductos}\n\n` +
-                         `Transporte:${infoTransporte}\n` +
-                         `Total a pagar:${totalFinalTexto}\n` +
-                         `Lugar:${lugar}\n` +
-                         `Fecha:${fechaLimpia}\n` +
-                         `Notas:${notas}`;
-    
-  
-    // 5. Abrir WhatsApp (location.href es más seguro que window.open para evitar bloqueos)
-    window.location.href = `https://wa.me/${numero}?text=${textoMensaje}`;
+const mensaje = " *NUEVO PEDIDO*\n\n" +
+                    "*Detalle:*\n" + listaProductos + "\n\n" +
+                    "*Transporte:* " + infoTransporte + "\n" +
+                    "*Total a pagar:* " + totalFinalTexto + "\n" +
+                    "*Lugar:* " + lugar + "\n" +
+                    "*Fecha:* " + fechaLimpia + "\n" +
+                    "*Notas:* " + notas;
+
+    // IMPORTANTE: Aunque no uses encodeURIComponent, para que Safari y otros
+    // navegadores no rompan el enlace al ver el "\n", usamos replace 
+    // solo para los saltos de línea al final.
+    const mensajeLimpio = mensaje.split('\n').join('%0A');
+
+    window.location.href = "https://wa.me/" + numero + "?text=" + mensajeLimpio;
 }
 
 
