@@ -286,21 +286,16 @@ if (fechaInput) {
     // 1. Separamos la fecha de la hora (ej: "2026-04-03" y "14:30")
     const [f, h] = fechaInput.split("T");
     
-    // 2. Separamos las horas y los minutos
-    let [horas, minutos] = h.split(":");
-    horas = parseInt(horas); // Convertimos a número para calcular
-
     // 3. Lógica para AM/PM
     const ampm ="";
 
     if(horas>12){
-    horas=horas-12;
     ampm="PM";
 }else{
     ampm="AM";
 }
-    // 4. Armamos el formato final: Día-Mes-Año - Hora:Min am/pm
-    fechaLimpia = `${f} - ${horas}:${minutos}${ampm}`;
+
+    fechaLimpia = `${f} - ${h}${ampm}`;
 }
     const numero = "5363747155";
     const TASA = 450; 
@@ -345,7 +340,9 @@ if (fechaInput) {
                     `📝 *Notas:* ${notas}`;
     
     // 5. Abrir WhatsApp
-    window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
+
+    window.location.href = `https://wa.me/${numero}?text=${mensaje}`;
+    
 }
 
 
