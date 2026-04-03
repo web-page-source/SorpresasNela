@@ -280,11 +280,26 @@ function finalizarPedido() {
     const notas = document.getElementById("notas-provisionales").value;
     const selectTransporte = document.getElementById("municipio-select");
     let fechaInput = document.getElementById('fecha').value; 
+    let fechaLimpia = "";
 
-// 2. Reemplaza la 'T' por un guion rodeado de espacios (o solo un espacio)
-// Esto transforma "2026-04-03T14:30" en "2026-04-03 - 14:30"
-    let fechaLimpia = fechaInput.replace("T", " - ");
-// Referencia al nuevo menú
+if (fechaInput) {
+    // 1. Separamos la fecha de la hora (ej: "2026-04-03" y "14:30")
+    const [f, h] = fechaInput.split("T");
+    
+    // 2. Separamos las horas y los minutos
+    let [horas, minutos] = h.split(":");
+    horas = parseInt(horas); // Convertimos a número para calcular
+
+    // 3. Lógica para AM/PM
+    const ampm = horas >= 12 ? 'pm' : 'am';
+    
+    // Convertimos formato 24h a 12h
+    horas = horas % 12;
+    horas = horas ? horas : 12; // Si es 0, poner 12
+
+    // 4. Armamos el formato final: Día-Mes-Año - Hora:Min am/pm
+    fechaLimpia = `${f} - ${horas}:${minutos}${ampm}`;
+}
     const numero = "5363747155";
     const TASA = 450; 
 
