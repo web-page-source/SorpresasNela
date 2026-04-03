@@ -311,7 +311,7 @@ function finalizarPedido() {
     }
 
     // 1. Lista de productos
-   let listaProductos = carrito.map(i => "✅ " + i.cantidad + "x " + i.nombre).join("\n");
+   let listaProductos = carrito.map(i => i.cantidad + "x " + i.nombre).join("\n");
     // 2. Cálculo de totales (Base + Transporte)
     let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
     let costoTransporteZelle = 0;
@@ -335,7 +335,7 @@ function finalizarPedido() {
     }
 
 const mensaje = " *NUEVO PEDIDO*\n\n" +
-                    "*Detalle:*\n" + listaProductos + "\n\n" +
+                    listaProductos + "\n\n" +
                     "*Transporte:* " + infoTransporte + "\n" +
                     "*Total a pagar:* " + totalFinalTexto + "\n" +
                     "*Lugar:* " + lugar + "\n" +
