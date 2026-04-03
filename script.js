@@ -275,20 +275,18 @@ function quitarUno(index) {
     actualizarResumen();
 }
 
-let fechaVal = document.getElementById('fecha').value; 
-let fechaLimpia = "";
+function finalizarPedido() {
+    const lugar = document.getElementById("lugar").value;
+    const notas = document.getElementById("notas-provisionales").value;
+    const selectTransporte = document.getElementById("municipio-select");
+    let fechaVal = document.getElementById('fecha').value; 
+    let fechaLimpia = "";
 
 if(fechaVal) {
     const [f, h] = fechaVal.split("T"); // Separa fecha de hora
-    const [y, m, d] = f.split("-");     // Separa año, mes, día
-    fechaLimpia = `${d}/${m}/${y} a las ${h}`; // Resultado: 03/04/2026 a las 14:30
-}
-
-function finalizarPedido() {
-    const lugar = document.getElementById("lugar").value;
-    const fecha = document.getElementById("fecha").value;
-    const notas = document.getElementById("notas-provisionales").value;
-    const selectTransporte = document.getElementById("municipio-select"); // Referencia al nuevo menú
+    fechaLimpia = `${f} a las ${h}`; // Resultado: 03/04/2026 a las 14:30
+} 
+// Referencia al nuevo menú
     const numero = "5363747155";
     const TASA = 450; 
 
