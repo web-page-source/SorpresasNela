@@ -14,6 +14,7 @@ h1 ,h2 ,h3,h4{
 }
 
 
+
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -162,7 +163,7 @@ input {
 .tagline {
     color: var(--color-bordes); /* El 2do color */
     font-style: italic;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     font-size: 0.9rem;
     text-align: center;
 }
