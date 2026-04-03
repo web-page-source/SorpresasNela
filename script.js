@@ -279,13 +279,11 @@ function finalizarPedido() {
     const lugar = document.getElementById("lugar").value;
     const notas = document.getElementById("notas-provisionales").value;
     const selectTransporte = document.getElementById("municipio-select");
-    let fechaVal = document.getElementById('fecha').value; 
-    let fechaLimpia = "";
+    let fechaInput = document.getElementById('fecha').value; 
 
-if(fechaVal) {
-    const [f, h] = fechaVal.split("T"); // Separa fecha de hora
-    fechaLimpia = `${f} a las ${h}`; // Resultado: 03/04/2026 a las 14:30
-} 
+// 2. Reemplaza la 'T' por un guion rodeado de espacios (o solo un espacio)
+// Esto transforma "2026-04-03T14:30" en "2026-04-03 - 14:30"
+    let fechaLimpia = fechaInput.replace("T", " - ");
 // Referencia al nuevo menú
     const numero = "5363747155";
     const TASA = 450; 
