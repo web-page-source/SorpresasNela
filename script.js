@@ -199,7 +199,7 @@ function irAlFormulario() {
 }
 
 function showPage(pageId) {
-    // --- NUEVA LÓGICA DE REINICIO ---
+    
     // Si el usuario vuelve al inicio, reseteamos todo
     if (pageId === 'inicio') {
         carrito = []; // Vaciamos el arreglo
@@ -311,7 +311,7 @@ function finalizarPedido() {
     }
 
     // 1. Lista de productos
-    let listaProductos = carrito.map(i => `✅ ${i.cantidad}x ${i.nombre}`).join("%0A");
+    let listaProductos = carrito.map(i => `-${i.cantidad}x ${i.nombre}`);
 
     // 2. Cálculo de totales (Base + Transporte)
     let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
@@ -335,19 +335,17 @@ function finalizarPedido() {
         totalFinalTexto = `${totalZelleFinal.toLocaleString()} Zelle`;
     }
 
-   const textoMensaje = `📌 *NUEVO PEDIDO*\n\n` +
-                         `*Detalle:* \n${listaProductos}\n\n` +
-                         `🚚 *Transporte:* ${infoTransporte}\n` +
-                         `💰 *Total a pagar:* ${totalFinalTexto}\n` +
-                         `📍 *Lugar:* ${lugar}\n` +
-                         `📅 *Fecha:* ${fechaLimpia}\n` +
-                         `📝 *Notas:* ${notas}`;
+   const textoMensaje = `NUEVO PEDIDO\n\n` +
+                         `Detalle:\n${listaProductos}\n\n` +
+                         `Transporte:${infoTransporte}\n` +
+                         `Total a pagar:${totalFinalTexto}\n` +
+                         `Lugar:${lugar}\n` +
+                         `Fecha:${fechaLimpia}\n` +
+                         `Notas:${notas}`;
     
-    // 4. LA CLAVE PARA SAFARI Y EMOJIS: encodeURIComponent
-    const mensajeFinal = encodeURIComponent(textoMensaje);
-
+  
     // 5. Abrir WhatsApp (location.href es más seguro que window.open para evitar bloqueos)
-    window.location.href = `https://wa.me/${numero}?text=${mensajeFinal}`;
+    window.location.href = `https://wa.me/${numero}?text=${textoMensaje}`;
 }
 
 
