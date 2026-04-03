@@ -291,8 +291,14 @@ if (fechaInput) {
     horas = parseInt(horas); // Convertimos a número para calcular
 
     // 3. Lógica para AM/PM
-    const ampm = horas >= 12 ? 'pm' : 'am';
+    const ampm ="";
 
+    if(horas>12){
+    horas=horas-12;
+    ampm="PM";
+}else{
+    ampm="AM";
+}
     // 4. Armamos el formato final: Día-Mes-Año - Hora:Min am/pm
     fechaLimpia = `${f} - ${horas}:${minutos}${ampm}`;
 }
