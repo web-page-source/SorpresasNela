@@ -341,8 +341,8 @@ if (fechaInput) {
     
     // 5. Abrir WhatsApp
 
-    window.location.href = `https://wa.me/${numero}?text=${mensaje}`;
-    
+
+    window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
 }
 
 
