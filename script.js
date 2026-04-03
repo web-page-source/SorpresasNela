@@ -282,21 +282,26 @@ function finalizarPedido() {
     let fechaInput = document.getElementById('fecha').value; 
     let fechaLimpia = "";
 
-if (fechaInput) {
-    // 1. Separamos la fecha de la hora (ej: "2026-04-03" y "14:30")
-    const [f, h] = fechaInput.split("T");
-    
-    // 3. Lógica para AM/PM
-    const ampm ="";
+    if (fechaInput) {
+        // 1. Separamos fecha y hora
+        const partes = fechaInput.split("T");
+        const f = partes[0];
+        const h = partes[1];
+        
+        // 2. Extraer horas para AM/PM
+        let [h_pura, m_pura] = h.split(":");
+        let horas = parseInt(h_pura);
+        let minutos = m_pura;
 
-    if(horas>12){
-    ampm="PM";
-}else{
-    ampm="AM";
-}
+        let ampm = horas >= 12 ? "PM" : "AM";
+        
+        // Convertir a formato 12h
+        let horas12 = horas % 12;
+        horas12 = horas12 ? horas12 : 12; 
 
-    fechaLimpia = `${f} - ${h}${ampm}`;
-}
+        
+        fechaLimpia = `${f} - ${horas12}:${minutos} ${ampm}`;
+    }
     const numero = "5363747155";
     const TASA = 450; 
 
@@ -330,19 +335,19 @@ if (fechaInput) {
         totalFinalTexto = `${totalZelleFinal.toLocaleString()} Zelle`;
     }
 
-    // 4. Construcción del mensaje (Añadimos la línea de Transporte)
-    const mensaje = `📌 *NUEVO PEDIDO*%0A%0A` +
-                    `*Detalle:*%0A${listaProductos}%0A%0A` +
-                    `🚚 *Transporte:* ${infoTransporte}%0A` +
-                    `💰 *Total a pagar:* ${totalFinalTexto}%0A` +
-                    `📍 *Lugar:* ${lugar}%0A` +
-                    `📅 *Fecha:* ${fechaLimpia}%0A` +
-                    `📝 *Notas:* ${notas}`;
+   const textoMensaje = `📌 *NUEVO PEDIDO*\n\n` +
+                         `*Detalle:* \n${listaProductos}\n\n` +
+                         `🚚 *Transporte:* ${infoTransporte}\n` +
+                         `💰 *Total a pagar:* ${totalFinalTexto}\n` +
+                         `📍 *Lugar:* ${lugar}\n` +
+                         `📅 *Fecha:* ${fechaLimpia}\n` +
+                         `📝 *Notas:* ${notas}`;
     
-    // 5. Abrir WhatsApp
+    // 4. LA CLAVE PARA SAFARI Y EMOJIS: encodeURIComponent
+    const mensajeFinal = encodeURIComponent(textoMensaje);
 
-
-    window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
+    // 5. Abrir WhatsApp (location.href es más seguro que window.open para evitar bloqueos)
+    window.location.href = `https://wa.me/${numero}?text=${mensajeFinal}`;
 }
 
 
