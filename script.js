@@ -9,7 +9,7 @@ const misOfertas = [
     { cat: "La Sorpresa", nombre: "Plan Sorpresa Completo", zelle: 25, nota: "Incluye: video, canción a elección y animados disponibles.", img: "sorpresa.jpg" },
 
     // COMBOS
-    { cat: "Combos", nombre: "Combo Buffet Cumpleaños (25 personas)", zelle: 50, nota: "Incluye: pizza, cake, sorbeto, torejitas, galleticas, pan con pasta, ensalada fría.", img: "bufete.jpg" },
+    { cat: "Combos", nombre: "Combo Buffet de Cumpleaños", zelle: 50, nota: "Incluye: pizza, cake, sorbeto, torejitas, galleticas, pan con pasta, ensalada fría.(para 25 personas)", img: "bufete.jpg" },
     { cat: "Decoración", nombre: "Decoración", zelle: 100, nota: "Incluye: Arreglo floral, decoración de globos, manteles, forros de asientos y centros de mesa.", img: "dec15.jpg" },
 
     // REGALOS
@@ -35,15 +35,15 @@ const misOfertas = [
 
     // HELADOS
     { cat: "Helados", nombre: "Helado Original ", zelle: 10, img: "helado1.jpg", nota: "(4 Litros)" },
-    { cat: "Helados", nombre: "Helado + 15 Bizcochos con Leche Condensada", zelle: 15, img: "hel1.jpg", nota: "" },
-    { cat: "Helados", nombre: "Helado + 15 Donas Originales", zelle: 15, img: "hel2.jpg", nota: "" },
-    { cat: "Helados", nombre: "Helado + 10 Paquetes de Sorbeto Grandes", zelle: 20, img: "hel3.jpg", nota: "" },
+    { cat: "Helados", nombre: "Helado con 15 Bizcochos con Leche Condensada", zelle: 15, img: "hel1.jpg", nota: "" },
+    { cat: "Helados", nombre: "Helado con 15 Donas Originales", zelle: 15, img: "hel2.jpg", nota: "" },
+    { cat: "Helados", nombre: "Helado con 10 Paquetes de Sorbeto Grandes", zelle: 20, img: "hel3.jpg", nota: "" },
 
     // BEBIDAS
-    { cat: "Bebidas", nombre: "1 Caja de Refresco", zelle: 18, img: "ref.jpg", nota: "" },
-    { cat: "Bebidas", nombre: "1 Caja de Jugo", zelle: 16, img: "jugos.png" , nota: "" },
-    { cat: "Bebidas", nombre: "1 Caja de Cerveza", zelle: 20, img: "cerv.jpg", nota: "(Mayabe-Cristal)" },
-    { cat: "Bebidas", nombre: "1 Caja de Malta", zelle: 22, img: "malta.jpg", nota: "" },
+    { cat: "Bebidas", nombre: "Caja de Refresco", zelle: 18, img: "ref.jpg", nota: "" },
+    { cat: "Bebidas", nombre: "Caja de Jugo", zelle: 16, img: "jugos.png" , nota: "" },
+    { cat: "Bebidas", nombre: "Caja de Cerveza", zelle: 20, img: "cerv.jpg", nota: "(Mayabe-Cristal)" },
+    { cat: "Bebidas", nombre: "Caja de Malta", zelle: 22, img: "malta.jpg", nota: "" },
 
     // EXTRAS
     { cat: "Extras", nombre: "Ensalada Fría ", zelle: 8, img: "ensalada2.jpg", nota: "(10 raciones)" },
@@ -275,6 +275,15 @@ function quitarUno(index) {
     actualizarResumen();
 }
 
+let fechaVal = document.getElementById('fecha').value; 
+let fechaLimpia = "";
+
+if(fechaVal) {
+    const [f, h] = fechaVal.split("T"); // Separa fecha de hora
+    const [y, m, d] = f.split("-");     // Separa año, mes, día
+    fechaLimpia = `${d}/${m}/${y} a las ${h}`; // Resultado: 03/04/2026 a las 14:30
+}
+
 function finalizarPedido() {
     const lugar = document.getElementById("lugar").value;
     const fecha = document.getElementById("fecha").value;
@@ -319,7 +328,7 @@ function finalizarPedido() {
                     `🚚 *Transporte:* ${infoTransporte}%0A` +
                     `💰 *Total a pagar:* ${totalFinalTexto}%0A` +
                     `📍 *Lugar:* ${lugar}%0A` +
-                    `📅 *Fecha:* ${fecha}%0A` +
+                    `📅 *Fecha:* ${fechaLimpia}%0A` +
                     `📝 *Notas:* ${notas}`;
     
     // 5. Abrir WhatsApp
