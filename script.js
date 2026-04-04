@@ -48,8 +48,12 @@ const misOfertas = [
     // EXTRAS
     { cat: "Extras", nombre: "Ensalada Fría ", zelle: 8, img: "ensalada2.jpg", nota: "(10 raciones)" },
     { cat: "Extras", nombre: "Ensalada Fría ", zelle: 12, img: "ensaladafria.jpg", nota: "(4 Litros)" },
-    { cat: "Extras", nombre: "Flan de Leche", zelle: 6, img: "flan.jpg", nota: "" }
+    { cat: "Extras", nombre: "Flan de Leche", zelle: 6, img: "flan.jpg", nota: "" },
+    { cat: "Extras", nombre: "Arroz con Leche", zelle: 5, img: "arroz.jpg", nota: "(10 raciones)" },
+    { cat: "Extras", nombre: "Dulce de Leche", zelle: 5, img: "dulce.jpg", nota: "(10 raciones)" },
+
 ];
+
 
 
 function cargarContenido() {
@@ -354,19 +358,19 @@ const mensaje = " *NUEVO PEDIDO*\n\n" +
 // --- BASE DE DATOS DE VIDEOS LOCALES (Solo rutas) ---
 const baseDatosVideos = {
     bodas: [
-        'https://www.facebook.com/reel/939347828773117', // Videos verticales grabados con celular
-        'https://www.facebook.com/reel/32068951906084941',
-        'https://www.facebook.com/reel/1178728713809724',
+        {url: 'https://www.facebook.com/reel/939347828773117',thumb: 'img/amor1.jpg'}, // Videos verticales grabados con celular
+        {url: 'https://www.facebook.com/reel/32068951906084941',thumb: 'img/amor2.jpg'},
+        {url: 'https://www.facebook.com/reel/1178728713809724',thumb: 'img/amor3.jpg'},
     ],
     cumple: [
-        'https://www.facebook.com/reel/1226501842373495',
-        'https://www.facebook.com/reel/1217206760595889',
-        'https://www.facebook.com/reel/25645078845160042',
+        {url: 'https://www.facebook.com/reel/1226501842373495',thumb: 'img/cumple2.jpg'},
+        {url:'https://www.facebook.com/reel/1217206760595889',thumb: 'img/fondoc1.jpg'},
+        {url:'https://www.facebook.com/reel/25645078845160042',thumb: 'img/fondocumple3.jpg'},
     ],
     familia: [ // NUEVA CATEGORÍA
-        'https://www.facebook.com/reel/1471106524634726',
-        'https://www.facebook.com/reel/3676869279122841',
-        'https://www.facebook.com/reel/876648678127336'
+        {url:'https://www.facebook.com/reel/1471106524634726',thumb: 'img/adian1.jpg'},
+        {url:'https://www.facebook.com/reel/3676869279122841',thumb: 'img/fodofam1.jpg'},
+        {url:'https://www.facebook.com/reel/876648678127336',thumb: 'img/fondofam2.jpg'},
     ]
 };
 function abrirGaleriaVideos(categoria) {
@@ -391,17 +395,17 @@ function abrirGaleriaVideos(categoria) {
     const listaVideos = baseDatosVideos[categoria] || [];
 
     if (listaVideos.length > 0) {
-        listaVideos.forEach((url, index) => {
-            // Generamos el HTML compatible con Facebook
-            const mosaicoHtml = `
-                <div class="video-card-fb" onclick="window.open('${url}', '_blank')">
-                    <div class="play-overlay">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="30">
-                        <span>Ver Video #${index + 1}</span>
-                    </div>
-                </div>`;
-            container.innerHTML += mosaicoHtml;
-        });
+       listaVideos.forEach((video, index) => {
+    const mosaicoHtml = `
+        <div class="video-card-fb" 
+             onclick="window.open('${video.url}', '_blank')"
+             style="background-image: url('${video.thumb}'); background-size: cover;">
+            <div class="play-overlay">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="30">
+            </div>
+        </div>`;
+    container.innerHTML += mosaicoHtml;
+});
     } else {
         container.innerHTML = "<p style='color:gray; text-align:center; grid-column: 1/-1;'>Próximamente más recuerdos...</p>";
     }
