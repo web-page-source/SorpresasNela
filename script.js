@@ -306,7 +306,7 @@ function finalizarPedido() {
         
         fechaLimpia = `${f} - ${horas12}:${minutos} ${ampm}`;
     }
-    const numero = "5363747155";
+    const numero = "5350995513";
     const TASA = 450; 
 
     if (!lugar || !fecha) {
@@ -340,7 +340,7 @@ function finalizarPedido() {
 
 const mensaje = " *NUEVO PEDIDO*\n\n" +
                     listaProductos + "\n\n" +
-                    "*Transporte:* " + infoTransporte + "\n" +
+                    "*Transportación:* " + infoTransporte + "\n" +
                     "*Total a pagar:* " + totalFinalTexto + "\n" +
                     "*Lugar:* " + lugar + "\n" +
                     "*Fecha:* " + fechaLimpia + "\n" +
