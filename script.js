@@ -29,7 +29,7 @@ const misOfertas = [
 
     // PASTELES
     { cat: "Pasteles", nombre: "Pastel Personalizado ", zelle: 10, img: "cakeper.jpg", nota: "(para 15 personas)" },
-    { cat: "Pasteles", nombre: "Pastel con Leche Condensada", zelle: 12, img: "cakeleche.jpg", nota: "(par 15 personas)" },
+    { cat: "Pasteles", nombre: "Pastel con Leche Condensada", zelle: 12, img: "cakeleche.jpg", nota: "(para 15 personas)" },
     { cat: "Pasteles", nombre: "Pastel Doble Personalizado ", zelle: 20, img: "cake1.jpg", nota: "(para 40-50 personas)" },
     { cat: "Pasteles", nombre: "Pastel con Nutella", zelle: 12, img: "cakenutella.jpg", nota: "(para 15 personas)" },
 
