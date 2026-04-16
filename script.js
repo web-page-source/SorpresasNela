@@ -13,7 +13,7 @@ const misOfertas = [
     { cat: "Decoración", nombre: "Decoración", zelle: 100, nota: "Incluye: Arreglo floral, decoración de globos, manteles, forros de asientos y centros de mesa.", img: "dec15.jpg" },
 
     // REGALOS
-    { cat: "Regalos", nombre: "Ramo de Flores ", zelle: 15, img: "ramo2.jpg", nota: "" },
+    { cat: "Regalos", nombre: "Ramo de Flores ", zelle: 15, img: "ramo2.jpg", nota: "Si desea un ramo conformado por dinero puede agregar el producto y especificar la cantidad en las notas" },
     { cat: "Regalos", nombre: "Cesta Mediana con Confituras", zelle: 15, img: "cestapeq.jpg", nota: "" },
     { cat: "Regalos", nombre: "Cesta Grande con Confituras", zelle: 25, img: "cestagrand.jpg", nota: "" },
     { cat: "Regalos", nombre: "Perfumes Originales", zelle: 15, img: "perypel.jpg", nota: "" },
