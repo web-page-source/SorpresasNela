@@ -278,6 +278,7 @@ function finalizarPedido() {
     const lugar = document.getElementById("lugar").value;
     const notas = document.getElementById("notas-provisionales").value;
     const selectTransporte = document.getElementById("municipio-select");
+    const remesa = document.getElementById("remesa-input") ? document.getElementById("remesa-input").value : "";
     let fechaInput = document.getElementById('fecha').value; 
     let fechaLimpia = "";
 
@@ -339,7 +340,9 @@ const mensaje = " *NUEVO PEDIDO*\n\n" +
                     "*Total a pagar:* " + totalFinalTexto + "\n" +
                     "*Lugar:* " + lugar + "\n" +
                     "*Fecha:* " + fechaLimpia + "\n" +
-                    "*Notas:* " + notas;
+                    "*Notas:* " + notas + "\n" +
+                    "*Servicio de remesa:* " + (remesa ? remesa : "");
+                   
 
     // IMPORTANTE: Aunque no uses encodeURIComponent, para que Safari y otros
     // navegadores no rompan el enlace al ver el "\n", usamos replace 
@@ -349,6 +352,23 @@ const mensaje = " *NUEVO PEDIDO*\n\n" +
     window.location.href = "https://wa.me/" + numero + "?text=" + mensajeLimpio;
 }
 
+function toggleRemesa(show) {
+    document.getElementById("menu-remesa").style.display = show ? "block" : "none";
+    if (!show) {
+        document.getElementById("remesa-input").value = "";
+        document.getElementById("texto-remesa").textContent = "";
+    }
+}
+
+function actualizarRemesa() {
+    const valor = document.getElementById("remesa-input").value;
+    const texto = document.getElementById("texto-remesa");
+    if (valor && valor > 0) {
+        texto.textContent = "Se entregarán " + (valor * 500) + " pesos";
+    } else {
+        texto.textContent = "";
+    }
+}
 
 // --- BASE DE DATOS DE VIDEOS LOCALES (Solo rutas) ---
 const baseDatosVideos = {
