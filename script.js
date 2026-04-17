@@ -1,561 +1,151 @@
-// Abrir/Cerrar Menú
-function toggleMenu() {
-    document.getElementById("sideMenu").classList.toggle("active");
+// 1. Abrir y Cerrar Modal
+const modal = document.getElementById("modal-registro");
+const btnCrear = document.querySelector(".btn-create-account");
+
+btnCrear.onclick = (e) => {
+    e.preventDefault();
+    modal.style.display = "block";
 }
 
+function cerrarModal() {
+    modal.style.display = "none";
+}
+// 1. Configuración (REEMPLAZA LA KEY POR LA "anon public" DE SUPABASE)
+const SUPABASE_URL = 'https://otdvprabdsombmzfkuhs.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90ZHZwcmFiZHNvbWJtemZrdWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDk3MTUsImV4cCI6MjA5MTc4NTcxNX0.DiN8VdtZYc9xzN9o2pvKlrDvoHW42ec-GTVDCSloR4w'; 
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const misOfertas = [
-    // LA SORPRESA
-    { cat: "La Sorpresa", nombre: "Plan Sorpresa Completo", zelle: 25, nota: "Incluye: video, canción a elección y animados disponibles.", img: "sorpresa.jpg" },
-
-    // COMBOS
-    { cat: "Combos", nombre: "Combo Buffet de Cumpleaños", zelle: 50, nota: "Incluye: pizza, cake, sorbeto, torejitas, galleticas, pan con pasta, ensalada fría.(para 25 personas)", img: "bufete.jpg" },
-    { cat: "Decoración", nombre: "Decoración", zelle: 100, nota: "Incluye: Arreglo floral, decoración de globos, manteles, forros de asientos y centros de mesa.", img: "dec15.jpg" },
-
-    // REGALOS
-    { cat: "Regalos", nombre: "Ramo de Flores ", zelle: 15, img: "ramo2.jpg", nota: "Si desea un ramo conformado por dinero puede agregar el producto y especificar la cantidad en las notas" },
-    { cat: "Regalos", nombre: "Cesta Mediana con Confituras", zelle: 15, img: "cestapeq.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Cesta Grande con Confituras", zelle: 25, img: "cestagrand.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Perfumes Originales", zelle: 15, img: "perypel.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Peluche Pequeño", zelle: 8, img: "peluchepeq.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Peluche Mediano", zelle: 15, img: "peluchemed.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Caja de Bombones ", zelle: 10, img: "Bombones rellenos.jpg", nota: "30 unidades" },
-
-    // PIZZAS
-    { cat: "Pizzas", nombre: "Pizza Familiar con Jamón y Queso", zelle: 10, img: "pizzajam.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar Napolitana", zelle: 8, img: "nap.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar con Salchicha", zelle: 12, img: "pizzasalch.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar con Doble Queso", zelle: 15, img: "dobleq.jpg", nota: "" },
-
-    // PASTELES
-    { cat: "Pasteles", nombre: "Pastel Personalizado ", zelle: 10, img: "cakeper.jpg", nota: "(para 15 personas)" },
-    { cat: "Pasteles", nombre: "Pastel con Leche Condensada", zelle: 12, img: "cakeleche.jpg", nota: "(para 15 personas)" },
-    { cat: "Pasteles", nombre: "Pastel Doble Personalizado ", zelle: 20, img: "cake1.jpg", nota: "(para 40-50 personas)" },
-    { cat: "Pasteles", nombre: "Pastel con Nutella", zelle: 12, img: "cakenutella.jpg", nota: "(para 15 personas)" },
-
-    // HELADOS
-    { cat: "Helados", nombre: "Helado Original ", zelle: 10, img: "helado1.jpg", nota: "(4 Litros)" },
-    { cat: "Helados", nombre: "Helado con 15 Bizcochos con Leche Condensada", zelle: 15, img: "hel1.jpg", nota: "" },
-    { cat: "Helados", nombre: "Helado con 15 Donas Originales", zelle: 15, img: "hel2.jpg", nota: "" },
-    { cat: "Helados", nombre: "Helado con 10 Paquetes de Sorbeto Grandes", zelle: 20, img: "hel3.jpg", nota: "" },
-
-    // BEBIDAS
-    { cat: "Bebidas", nombre: "Caja de Refresco", zelle: 18, img: "ref.jpg", nota: "" },
-    { cat: "Bebidas", nombre: "Caja de Jugo", zelle: 16, img: "jugos.png" , nota: "" },
-    { cat: "Bebidas", nombre: "Caja de Cerveza", zelle: 20, img: "cerv.jpg", nota: "(Mayabe-Cristal)" },
-    { cat: "Bebidas", nombre: "Caja de Malta", zelle: 22, img: "malta.jpg", nota: "" },
-
-    // EXTRAS
-    { cat: "Extras", nombre: "Ensalada Fría ", zelle: 8, img: "ensalada2.jpg", nota: "(10 raciones)" },
-    { cat: "Extras", nombre: "Ensalada Fría ", zelle: 12, img: "ensaladafria.jpg", nota: "(4 Litros)" },
-    { cat: "Extras", nombre: "Flan de Leche", zelle: 6, img: "flan.jpg", nota: "" },
-    { cat: "Extras", nombre: "Arroz con Leche", zelle: 5, img: "arroz.jpg", nota: "(10 raciones)" },
-    { cat: "Extras", nombre: "Dulce de Leche", zelle: 5, img: "dulce.jpg", nota: "(10 raciones)" },
-
-];
-
-
-
-function cargarContenido() {
-    const catalogo = document.getElementById('catalogo-container');
-    const reservaDoc = document.getElementById('reserva-selector-container');
-    const TASA_CALCULO = 450; // Solo para mostrar en la card
-
-    catalogo.innerHTML = "";
-    reservaDoc.innerHTML = "";
-    let ultimoCat = "";
-
-    misOfertas.forEach((oferta, index) => {
-        if (oferta.cat !== ultimoCat) {
-            const tituloHtml = `<h3 class="cat-titulo">${oferta.cat}</h3>`;
-            catalogo.innerHTML += tituloHtml;
-            reservaDoc.innerHTML += tituloHtml;
-            ultimoCat = oferta.cat;
-
-            if (ultimoCat === "Pizzas") {
-                const notaPizzas = `<div class="nota-importante">Con estas Pizzas comen 50 personas</div>`;
-                catalogo.innerHTML += notaPizzas;
-                reservaDoc.innerHTML += notaPizzas;
+async function enviarDatosABaseDeDatos(usuario) {
+    const { data, error } = await _supabase
+        .from('usuarios')
+        .insert([
+            { 
+                username: usuario.username, // Nuevo campo
+                nombre: usuario.nombre, 
+                apellidos: usuario.apellidos, 
+                carnet_id: usuario.carnet, 
+                correo: usuario.correo,
+                password: usuario.password // Nuevo campo
             }
-        }
+        ]);
 
-
-        const notaOpcionalHTML = oferta.nota ? `<p class="nota-producto-card">${oferta.nota}</p>` : "";
-        
-        // Calculamos el CUP al vuelo para la vista
-        const precioCUP_Vista = oferta.zelle * TASA_CALCULO;
-
-        const cardHTML = `
-            <div class="card-oferta" onclick="agregarAlCarrito('${oferta.nombre}', ${oferta.zelle})">
-                <img src="${oferta.img ? 'img/' + oferta.img : 'https://via.placeholder.com/300x150'}" alt="${oferta.nombre}">
-                <div class="info-oferta">
-                    <h4 class="nombre-producto">${oferta.nombre}</h4>
-                    ${notaOpcionalHTML} 
-                    <div class="precio-box">
-                        <span class="p-zelle">${oferta.zelle} Zelle</span>
-                        <span class="p-cup">${precioCUP_Vista.toLocaleString()} CUP</span>
-                    </div>
-                </div>
-            </div>`;
-
-        catalogo.innerHTML += cardHTML;
-        reservaDoc.innerHTML += cardHTML;
-    });
-}
-
-
-// Ejecutar al cargar la página
-
-window.onload = cargarContenido;
-
-
-
-// --- VARIABLES DE ESTADO ---
-
-let carrito = [];
-
-let enFormulario = false; 
-
-function actualizarResumen() {
-    const TASA_FIJA = 450; 
-    const displayFormulario = document.getElementById("display-total-dinamico");
-    const resumenDiv = document.getElementById("resumen-pedido");
-    const totalDiv = document.getElementById("total-acumulado");
-    const selectTransporte = document.getElementById("municipio-select"); // Capturamos el select
-    
-    let totalItems = 0;
-    let totalZelle = 0;
-    let html = ""; 
-
-    carrito.forEach((item, index) => {
-        const precioZ = Number(item.precio) || 0;
-        const subZ = precioZ * item.cantidad;
-        
-        totalItems += item.cantidad;
-        totalZelle += subZ;
-
-        html += `
-        <div class="item-resumen" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:8px;">
-            <div style="flex: 1; min-width: 0; word-wrap: break-word;">
-                <span style="font-size: 0.9rem; display: block; line-height: 1.2;">
-                    <strong>${item.cantidad}x</strong> ${item.nombre}
-                </span>
-            </div>
-            <div style="display:flex; align-items:center;">
-                <button onclick="quitarUno(${index})" style="border:none; background:#ffeded; color:red; border-radius:5px; width:30px; height:30px; font-weight:bold;">-</button>
-            </div>
-        </div>`;
-    });
-
-    // --- LÓGICA DE TRANSPORTE ---
-    let costoTransporteZelle = 0;
-    // Sumamos solo si el menú está visible y tiene un valor seleccionado
-    if (selectTransporte && selectTransporte.offsetParent !== null) {
-        costoTransporteZelle = Number(selectTransporte.value) || 0;
-        if (costoTransporteZelle > 0) {
-            html += `<p style="font-size:0.8rem; color: #7C5136; margin: 0;">+ Transporte equipo (${costoTransporteZelle} Zelle)</p>`;
-        }
-    }
-
-    const totalZelleFinal = totalZelle + costoTransporteZelle;
-    const totalCUP_Calculado = totalZelleFinal * TASA_FIJA;
-
-    if (displayFormulario) {
-        const valorMostrar = (origenSeleccionado === 'cuba') 
-            ? `${totalCUP_Calculado.toLocaleString()} CUP` 
-            : `${totalZelleFinal.toLocaleString()} Zelle`;
-
-        displayFormulario.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${valorMostrar}</span>`;
-    }
-
-    if (resumenDiv) resumenDiv.innerHTML = html || "<p style='text-align:center;'>Carrito vacío</p>";
-    if (totalDiv) totalDiv.innerHTML = `Total: ${totalZelleFinal} Zelle - ${totalCUP_Calculado.toLocaleString()} CUP`;
-    
-    // ... resto de la lógica de botones se mantiene igual
-    const cartCount = document.getElementById("cart-count");
-    if (cartCount) cartCount.innerText = totalItems;
-    
-    const cartBtn = document.getElementById("cart-icon-button");
-    const btnSiguiente = document.getElementById("btn-siguiente-flotante");
-    const esSeleccion = document.getElementById('reserva-seleccion')?.classList.contains('active');
-
-    if (esSeleccion && totalItems > 0) {
-        if (cartBtn) cartBtn.style.display = "flex";
-        if (btnSiguiente) btnSiguiente.style.display = "block";
+    if (error) {
+        console.error("Error de SQL:", error.message);
+        alert("Error al registrar: " + error.message);
     } else {
-        if (cartBtn) cartBtn.style.display = "none";
-        if (btnSiguiente) btnSiguiente.style.display = "none";
+        alert("¡Éxito! Tu cuenta ha sido guardada en la base de datos SQL.");
     }
 }
 
+function mostrarError(mensaje, evento) {
+    // Buscar o crear el overlay oscuro
+    let overlay = document.getElementById("error-overlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "error-overlay";
+        document.body.appendChild(overlay);
+    }
 
-function irAlFormulario() {
-    const overlay = document.getElementById("carrito-overlay");
+    // Buscar o crear la burbuja
+    let burbuja = document.getElementById("error-bubble");
+    if (!burbuja) {
+        burbuja = document.createElement("div");
+        burbuja.id = "error-bubble";
+        burbuja.className = "error-bubble";
+        document.body.appendChild(burbuja);
+    }
+
+    burbuja.innerText = mensaje;
+    
+    // Mostrar ambos elementos
+    overlay.style.display = "block";
+    burbuja.style.display = "block";
+
+    if(evento) evento.stopPropagation();
+}
+
+// Cerrar todo al hacer clic fuera
+document.addEventListener("click", () => {
+    const overlay = document.getElementById("error-overlay");
+    const burbuja = document.getElementById("error-bubble");
+    
     if (overlay) overlay.style.display = "none";
+    if (burbuja) burbuja.style.display = "none";
+});
+// 3. Procesar y Validar Datos al dar clic en Registrar
+document.getElementById("form-registro").onsubmit = async function(e) {
+    e.preventDefault();
 
-    // Mostramos la página
-    showPage('reserva-datos');
-    
-    // Forzamos la actualización visual
-    actualizarResumenFinalEnFormulario();
-}
+    // Captura de nuevos campos
+    let username = document.getElementById("username").value.trim().toLowerCase();
+    let password = document.getElementById("password").value;
+    let nombre = document.getElementById("nombre").value.trim();
+    let apellidos = document.getElementById("apellidos").value.trim();
+    let carnet = document.getElementById("carnet").value.trim();
+    let correo = document.getElementById("correo").value.trim();
 
-function showPage(pageId) {
-    
-    // Si el usuario vuelve al inicio, reseteamos todo
-    if (pageId === 'inicio') {
-        carrito = []; // Vaciamos el arreglo
-        // Si tienes campos de texto en el formulario, los limpiamos también:
-        const lugarInput = document.getElementById("lugar");
-        const fechaInput = document.getElementById("fecha");
-        if (lugarInput) lugarInput.value = "";
-        if (fechaInput) fechaInput.value = "";
-        
-        console.log("Carrito vaciado y formulario reiniciado");
+// 3. Procesar y Validar Datos al dar clic en Registrar
+document.getElementById("form-registro").onsubmit = async function(e) {
+    e.preventDefault();
+
+    // Captura de campos (asegúrate de que estos IDs existan en tu HTML)
+    let username = document.getElementById("username").value.trim().toLowerCase();
+    let password = document.getElementById("password").value;
+    let nombre = document.getElementById("nombre").value.trim();
+    let apellidos = document.getElementById("apellidos").value.trim();
+    let carnet = document.getElementById("carnet").value.trim();
+    let correo = document.getElementById("correo").value.trim();
+
+    // --- NUEVA VERIFICACIÓN INTERNA DE USERNAME ---
+    const { data: existe } = await _supabase
+        .from('usuarios')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+    if (existe) {
+        mostrarError("Nombre de usuario no disponible", e); // Uso de burbuja
+        return; 
     }
+    // ----------------------------------------------
 
-    if (pageId === 'reserva-datos') {
-        actualizarResumenFinalEnFormulario();
-    }
-    // --------------------------------
-
-    // 1. Ocultamos todas las páginas
-    const paginas = document.querySelectorAll('.page');
-    paginas.forEach(p => {
-        p.classList.remove('active');
-        p.style.display = 'none';
-    });
-
-    // 2. Mostramos la página actual
-    const activa = document.getElementById(pageId);
-    if (activa) {
-        activa.classList.add('active');
-        activa.style.display = 'block';
-    }
-
-    // 3. REGLA DE VISIBILIDAD Y ACTUALIZACIÓN
-    // Llamamos a actualizarResumen para que los botones desaparezcan 
-    // y el modal se limpie visualmente de inmediato.
-    window.scrollTo(0, 0);
-    actualizarResumen(); 
-}
-
-function agregarAlCarrito(nombre, precioZelle) { // <-- Quitamos precioCUP de aquí
-    const paginaOfertas = document.getElementById('ofertas');
-    if (paginaOfertas && paginaOfertas.classList.contains('active')) return;
-
-    const itemExistente = carrito.find(item => item.nombre === nombre);
-    
-    if (itemExistente) {
-        itemExistente.cantidad++;
-    } else {
-        carrito.push({ 
-            nombre: nombre, 
-            precio: precioZelle, 
-            // Ya no guardamos .cup aquí para evitar conflictos
-            cantidad: 1 
-        });
-    }
-    actualizarResumen();
-}
-
-
-// 5. FUNCIONES EXTRA
-function toggleCarrito() {
-    const overlay = document.getElementById("carrito-overlay");
-    if (overlay) {
-        overlay.style.display = (overlay.style.display === "flex") ? "none" : "flex";
-    }
-}
-
-function quitarUno(index) {
-    if (carrito[index].cantidad > 1) {
-        carrito[index].cantidad--;
-    } else {
-        carrito.splice(index, 1);
-    }
-    actualizarResumen();
-}
-
-function finalizarPedido() {
-    const lugar = document.getElementById("lugar").value;
-    const notas = document.getElementById("notas-provisionales").value;
-    const selectTransporte = document.getElementById("municipio-select");
-    let fechaInput = document.getElementById('fecha').value; 
-    let fechaLimpia = "";
-
-    if (fechaInput) {
-        // 1. Separamos fecha y hora
-        const partes = fechaInput.split("T");
-        const f = partes[0];
-        const h = partes[1];
-        
-        // 2. Extraer horas para AM/PM
-        let [h_pura, m_pura] = h.split(":");
-        let horas = parseInt(h_pura);
-        let minutos = m_pura;
-
-        let ampm = horas >= 12 ? "PM" : "AM";
-        
-        // Convertir a formato 12h
-        let horas12 = horas % 12;
-        horas12 = horas12 ? horas12 : 12; 
-
-        
-        fechaLimpia = `${f} - ${horas12}:${minutos} ${ampm}`;
-    }
-    const numero = "5350995513";
-    const TASA = 450; 
-
-    if (!lugar || !fecha) {
-        alert("Por favor, completa el lugar y la fecha de entrega.");
-        return;
-    }
-
-    // 1. Lista de productos
-   let listaProductos = carrito.map(i => i.cantidad + "x " + i.nombre).join("\n");
-    // 2. Cálculo de totales (Base + Transporte)
-    let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
-    let costoTransporteZelle = 0;
-    let infoTransporte = "No requerido";
-
-    // Si el menú existe y tiene un valor seleccionado
-    if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
-        costoTransporteZelle = Number(selectTransporte.value);
-        infoTransporte = selectTransporte.options[selectTransporte.selectedIndex].text;
-    }
-
-    let totalZelleFinal = totalZelleBase + costoTransporteZelle;
-    
-    // 3. Lógica de moneda según la selección
-    let totalFinalTexto = "";
-    if (origenSeleccionado === 'cuba') {
-        const totalCUP = totalZelleFinal * TASA;
-        totalFinalTexto = `${totalCUP.toLocaleString()} CUP`;
-    } else {
-        totalFinalTexto = `${totalZelleFinal.toLocaleString()} Zelle`;
-    }
-
-const mensaje = " *NUEVO PEDIDO*\n\n" +
-                    listaProductos + "\n\n" +
-                    "*Transportación:* " + infoTransporte + "\n" +
-                    "*Total a pagar:* " + totalFinalTexto + "\n" +
-                    "*Lugar:* " + lugar + "\n" +
-                    "*Fecha:* " + fechaLimpia + "\n" +
-                    "*Notas:* " + notas;
-
-    // IMPORTANTE: Aunque no uses encodeURIComponent, para que Safari y otros
-    // navegadores no rompan el enlace al ver el "\n", usamos replace 
-    // solo para los saltos de línea al final.
-    const mensajeLimpio = mensaje.split('\n').join('%0A');
-
-    window.location.href = "https://wa.me/" + numero + "?text=" + mensajeLimpio;
-}
-
-
-// --- BASE DE DATOS DE VIDEOS LOCALES (Solo rutas) ---
-const baseDatosVideos = {
-    bodas: [
-        {url: 'https://www.facebook.com/reel/939347828773117',thumb: 'img/amor1.jpg'}, // Videos verticales grabados con celular
-        {url: 'https://www.facebook.com/reel/32068951906084941',thumb: 'img/amor2.jpg'},
-        {url: 'https://www.facebook.com/reel/1178728713809724',thumb: 'img/amor3.jpg'},
-    ],
-    cumple: [
-        {url: 'https://www.facebook.com/reel/1226501842373495',thumb: 'img/cumple2.jpg'},
-        {url:'https://www.facebook.com/reel/1217206760595889',thumb: 'img/fondoc1.jpg'},
-        {url:'https://www.facebook.com/reel/25645078845160042',thumb: 'img/fondocumple3.jpg'},
-    ],
-    familia: [ // NUEVA CATEGORÍA
-        {url:'https://www.facebook.com/reel/1471106524634726',thumb: 'img/adian1.jpg'},
-        {url:'https://www.facebook.com/reel/3676869279122841',thumb: 'img/fodofam1.jpg'},
-        {url:'https://www.facebook.com/reel/876648678127336',thumb: 'img/fondofam2.jpg'},
-    ]
-};
-function abrirGaleriaVideos(categoria) {
-    const modal = document.getElementById("video-galeria-modal");
-    const container = document.getElementById("video-reproductores-container");
-    const titulo = document.getElementById("video-galeria-titulo");
-
-    if (!container || !modal) return;
-
-    // 1. Limpiar contenido previo
-    container.innerHTML = "";
-
-    // 2. Títulos dinámicos según la categoría
-    const titulosMap = {
-        'bodas': "Porque el amor mueve el mundo",
-        'cumple': "Porque mereces ser feliz en tu día",
-        'familia': "Porque la familia es lo más importante"
+    // Regla: Capitalización
+    const formatearNombre = (str) => {
+        return str.toLowerCase().split(' ')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
     };
-    titulo.innerText = titulosMap[categoria] || "Galería de Momentos";
 
-    // 3. Obtener videos de la base de datos
-    const listaVideos = baseDatosVideos[categoria] || [];
+    nombre = formatearNombre(nombre);
+    apellidos = formatearNombre(apellidos);
 
-    if (listaVideos.length > 0) {
-       listaVideos.forEach((video, index) => {
-    const mosaicoHtml = `
-        <div class="video-card-fb" 
-             onclick="window.open('${video.url}', '_blank')"
-             style="background-image: url('${video.thumb}'); background-size: cover;">
-            <div class="play-overlay">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="30">
-            </div>
-        </div>`;
-    container.innerHTML += mosaicoHtml;
-});
-    } else {
-        container.innerHTML = "<p style='color:gray; text-align:center; grid-column: 1/-1;'>Próximamente más recuerdos...</p>";
-    }
-
-    // 4. Abrir el modal y bloquear scroll
-    modal.classList.add('open');
-    modal.style.display = "flex"; // Asegura visibilidad si no usas solo clases
-    document.body.style.overflow = "hidden";
-}
-
-// Función para cerrar (Asegúrate de tenerla así)
-function cerrarGaleriaVideos() {
-    const modal = document.getElementById("video-galeria-modal");
-    if (modal) {
-        modal.classList.remove('open');
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }
-}
-
-
-
-
-window.onclick = function(event) {
-    const modal = document.getElementById("video-galeria-modal");
-    if (event.target === modal) {
-        cerrarGaleriaVideos();
-    }
-}
-// CERRAR AL CLICKEAR FUERA
-document.addEventListener("click", function(event) {
-    const sideMenu = document.getElementById("sideMenu");
-    const menuBtn = document.querySelector(".menu-btn");
-
-    // Si el menú está abierto Y el clic NO fue dentro del menú Y NO fue en el botón de abrir...
-    if (sideMenu.classList.contains("active") && 
-        !sideMenu.contains(event.target) && 
-        !menuBtn.contains(event.target)) {
-        
-        sideMenu.classList.remove("active");
-    }
-});
-let origenSeleccionado = null;
-
-function seleccionarOrigen(tipo) {
-    origenSeleccionado = tipo;
-
-    const btnCuba = document.getElementById('btn-pago-cuba');
-    const btnExterior = document.getElementById('btn-pago-exterior');
-    const bloqueDetalles = document.getElementById('campos-detalles-reserva');
-    const displayTotal = document.getElementById('display-total-dinamico');
-
-    // Lógica de clases visuales
-    btnCuba.classList.remove('seleccionada');
-    btnExterior.classList.remove('seleccionada');
-
-    if (tipo === 'cuba') {
-        btnCuba.classList.add('seleccionada');
-    } else {
-        btnExterior.classList.add('seleccionada');
-    }
-
-    // --- CÁLCULO CON TASA DE CAMBIO ---
-    const TASA = 450; 
-    let totalZelle = 0;
-
-    carrito.forEach(item => {
-        totalZelle += (item.precio * item.cantidad);
-    });
-
-    // Calculamos el CUP basado en el total Zelle acumulado
-    let totalCUP = totalZelle * TASA;
-
-    bloqueDetalles.style.display = "block";
-    displayTotal.style.display = "block";
-
-    if (tipo === 'cuba') {
-        displayTotal.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${totalCUP.toLocaleString()} CUP</span>`;
-    } else {
-        displayTotal.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${totalZelle.toLocaleString()} Zelle</span>`;
-    }
-
-    actualizarResumenFinalEnFormulario();
-}
-
-function actualizarResumenFinalEnFormulario() {
-    const contenedorResumen = document.getElementById("resumen-final-datos");
-    const displayTotal = document.getElementById('display-total-dinamico');
-    const selectTransporte = document.getElementById("municipio-select");
-    const TASA = 450;
-
-    if (!contenedorResumen) return;
-
-    if (carrito.length === 0) {
-        contenedorResumen.innerHTML = "<p style='text-align:center;'>No hay productos seleccionados.</p>";
+    // Regla: Validación Carnet Cubano
+    if (!/^\d{11}$/.test(carnet)) {
+        mostrarError("CI inválido: deben ser 11 dígitos", e); // Uso de burbuja
         return;
     }
 
-    let html = "<h4 style='margin-bottom:10px; border-bottom:1px solid #7C5136;'>Tu Pedido Actual:</h4><ul>";
-    let totalZelle = 0;
+    const aa = carnet.substring(0, 2);
+    const mm = parseInt(carnet.substring(2, 4));
+    const dd = parseInt(carnet.substring(4, 6));
 
-    // 1. Sumar productos
-    carrito.forEach(item => {
-        const subZ = item.precio * item.cantidad;
-        totalZelle += subZ;
-        html += `<li><strong>${item.cantidad}x</strong> ${item.nombre}</li>`;
-    });
-
-    // 2. Sumar Transporte (si está visible y seleccionado)
-    let infoTransporte = "";
-    if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
-        const extra = Number(selectTransporte.value);
-        totalZelle += extra;
-        infoTransporte = selectTransporte.options[selectTransporte.selectedIndex].text;
-        html += `<li style="color: #7C5136; font-weight: bold;">Transporte: ${infoTransporte}</li>`;
+    if (mm < 1 || mm > 12) {
+        mostrarError("CI inválido: mes no válido", e); // Uso de burbuja
+        return;
     }
 
-    html += "</ul>";
-    contenedorResumen.innerHTML = html;
-
-    // 3. ACTUALIZACIÓN DEL TOTAL (Aquí está la magia)
-    // Esta parte asegura que el precio cambie si el usuario cambia la moneda
-    if (displayTotal) {
-        if (origenSeleccionado === 'cuba') {
-            const totalCUP = totalZelle * TASA;
-            displayTotal.innerHTML = `
-                <span style="font-family: 'Adlery';">Total a pagar: </span>
-                <span style="font-family: 'Adlery';">${totalCUP.toLocaleString()} CUP</span>`;
-        } else {
-            displayTotal.innerHTML = `
-                <span style="font-family: 'Adlery';">Total a pagar: </span>
-                <span style="font-family: 'Adlery';">${totalZelle.toLocaleString()} Zelle</span>`;
-        }
+    const diasPorMes = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (dd < 1 || dd > diasPorMes[mm - 1]) {
+        mostrarError("CI inválido: día no válido", e); // Uso de burbuja
+        return;
     }
-}
 
-function toggleMenuTransporte(mostrar) {
-    const menu = document.getElementById("menu-municipios");
-    if (!menu) return;
+    // Objeto actualizado con los nuevos campos
+    const nuevoUsuario = { username, nombre, apellidos, carnet, correo, password };
 
-    menu.style.display = mostrar ? "block" : "none";
+    // Ejecutar el envío a Supabase
+    await enviarDatosABaseDeDatos(nuevoUsuario); 
     
-    if (!mostrar) {
-        document.getElementById("municipio-select").value = "0";
-    }
-    
-    actualizarResumen();// Recalcula el total y el resumen visual inmediatamente
-    actualizarResumenFinalEnFormulario();
+    cerrarModal();
+};
 }
