@@ -26,6 +26,7 @@ h1 ,h2 ,h3,h4{
 
 body {
     background-color: var(--blanco-crema);
+                    /* Altura total de la pantalla */
 }
 
 /* Header Fijo */

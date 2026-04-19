@@ -3,107 +3,89 @@ function toggleMenu() {
     document.getElementById("sideMenu").classList.toggle("active");
 }
 
+const supabaseUrl = "https://yibtjtlkaaphyikdsbvq.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYnRqdGxrYWFwaHlpa2RzYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTE0MTUsImV4cCI6MjA5MjAyNzQxNX0.flnpvqOZNxS7uOny4TozRBveagv5j47rgnPhObKOKGU";
 
-const misOfertas = [
-    // LA SORPRESA
-    { cat: "La Sorpresa", nombre: "Plan Sorpresa Completo", zelle: 25, nota: "Incluye: video, canción a elección y animados disponibles.", img: "sorpresa.jpg" },
+// IMPORTANTE: Usamos 'supabase.createClient' porque la librería del CDN inyecta el objeto 'supabase'
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+async function cargarContenido() {
+  const catalogo = document.getElementById('catalogo-container');
+  const reservaDoc = document.getElementById('reserva-selector-container');
+  const TASA_CALCULO = 450;
 
-    // COMBOS
-    { cat: "Combos", nombre: "Combo Buffet de Cumpleaños", zelle: 50, nota: "Incluye: pizza, cake, sorbeto, torejitas, galleticas, pan con pasta, ensalada fría.(para 25 personas)", img: "bufete.jpg" },
-    { cat: "Decoración", nombre: "Decoración", zelle: 100, nota: "Incluye: Arreglo floral, decoración de globos, manteles, forros de asientos y centros de mesa.", img: "dec15.jpg" },
+  catalogo.innerHTML = "";
+  reservaDoc.innerHTML = "";
+  let ultimoCat = "";
 
-    // REGALOS
-    { cat: "Regalos", nombre: "Ramo de Flores ", zelle: 15, img: "ramo2.jpg", nota: "Si desea un ramo conformado por dinero puede agregar el producto y especificar la cantidad en las notas" },
-    { cat: "Regalos", nombre: "Cesta Mediana con Confituras", zelle: 15, img: "cestapeq.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Cesta Grande con Confituras", zelle: 25, img: "cestagrand.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Perfumes Originales", zelle: 15, img: "perypel.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Peluche Pequeño", zelle: 8, img: "peluchepeq.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Peluche Mediano", zelle: 15, img: "peluchemed.jpg", nota: "" },
-    { cat: "Regalos", nombre: "Caja de Bombones ", zelle: 10, img: "Bombones rellenos.jpg", nota: "30 unidades" },
+  // 1. Traer productos activos desde la BD
+  const { data: productos, error } = await _supabase
+    .from("productos")
+    .select("*")
+    .eq("activo", true);
 
-    // PIZZAS
-    { cat: "Pizzas", nombre: "Pizza Familiar con Jamón y Queso", zelle: 10, img: "pizzajam.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar Napolitana", zelle: 8, img: "nap.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar con Salchicha", zelle: 12, img: "pizzasalch.jpg", nota: "" },
-    { cat: "Pizzas", nombre: "Pizza Familiar con Doble Queso", zelle: 15, img: "dobleq.jpg", nota: "" },
+  if (error) {
+    console.error("Error cargando productos:", error);
+    catalogo.innerHTML = "<p>Error al cargar productos</p>";
+    return;
+  }
 
-    // PASTELES
-    { cat: "Pasteles", nombre: "Pastel Personalizado ", zelle: 10, img: "cakeper.jpg", nota: "(para 15 personas)" },
-    { cat: "Pasteles", nombre: "Pastel con Leche Condensada", zelle: 12, img: "cakeleche.jpg", nota: "(para 15 personas)" },
-    { cat: "Pasteles", nombre: "Pastel Doble Personalizado ", zelle: 20, img: "cake1.jpg", nota: "(para 40-50 personas)" },
-    { cat: "Pasteles", nombre: "Pastel con Nutella", zelle: 12, img: "cakenutella.jpg", nota: "(para 15 personas)" },
+  // 2. Ordenar productos según reglas
+  const ordenPrioridad = ["La Sorpresa", "Decoración"];
+  productos.sort((a, b) => {
+    const idxA = ordenPrioridad.indexOf(a.cat);
+    const idxB = ordenPrioridad.indexOf(b.cat);
 
-   
-    // BEBIDAS
-    { cat: "Bebidas", nombre: "Caja de Refresco", zelle: 18, img: "ref.jpg", nota: "" },
-    { cat: "Bebidas", nombre: "Caja de Jugo", zelle: 16, img: "jugos.png" , nota: "" },
-    { cat: "Bebidas", nombre: "Caja de Cerveza", zelle: 20, img: "cerv.jpg", nota: "(Mayabe-Cristal)" },
-    { cat: "Bebidas", nombre: "Caja de Malta", zelle: 22, img: "malta.jpg", nota: "" },
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB || a.id - b.id;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    if (a.cat === "Extras") return 1;
+    if (b.cat === "Extras") return -1;
 
-    // EXTRAS
-    { cat: "Extras", nombre: "Ensalada Fría ", zelle: 8, img: "ensalada2.jpg", nota: "(10 raciones)" },
-    { cat: "Extras", nombre: "Ensalada Fría ", zelle: 12, img: "ensaladafria.jpg", nota: "(4 Litros)" },
-    { cat: "Extras", nombre: "Flan de Leche", zelle: 6, img: "flan.jpg", nota: "" },
-    { cat: "Extras", nombre: "Arroz con Leche", zelle: 5, img: "arroz.jpg", nota: "(10 raciones)" },
-    { cat: "Extras", nombre: "Dulce de Leche", zelle: 5, img: "dulce.jpg", nota: "(10 raciones)" },
+    const catCompare = a.cat.localeCompare(b.cat);
+    return catCompare !== 0 ? catCompare : a.id - b.id;
+  });
 
-];
+  // 3. Generar cards dinámicamente
+  productos.forEach((oferta) => {
+    if (oferta.cat !== ultimoCat) {
+      const tituloHtml = `<h3 class="cat-titulo">${oferta.cat}</h3>`;
+      catalogo.innerHTML += tituloHtml;
+      reservaDoc.innerHTML += tituloHtml;
+      ultimoCat = oferta.cat;
 
+      if (ultimoCat === "Pizzas") {
+        const notaPizzas = `<div class="nota-importante">Con estas Pizzas comen 50 personas</div>`;
+        catalogo.innerHTML += notaPizzas;
+        reservaDoc.innerHTML += notaPizzas;
+      }
+    }
 
+    const notaOpcionalHTML = oferta.nota ? `<p class="nota-producto-card">${oferta.nota}</p>` : "";
+    const precioCUP_Vista = oferta.zelle * TASA_CALCULO;
 
-function cargarContenido() {
-    const catalogo = document.getElementById('catalogo-container');
-    const reservaDoc = document.getElementById('reserva-selector-container');
-    const TASA_CALCULO = 450; // Solo para mostrar en la card
+    // 🔹 Aquí usamos directamente la imagen de la BD (Base64 o URL)
+    const imgSrc = oferta.img ? oferta.img : 'https://via.placeholder.com/300x150';
 
-    catalogo.innerHTML = "";
-    reservaDoc.innerHTML = "";
-    let ultimoCat = "";
+    const cardHTML = `
+      <div class="card-oferta" onclick="agregarAlCarrito('${oferta.nombre}', ${oferta.zelle})">
+        <img src="${imgSrc}" alt="${oferta.nombre}">
+        <div class="info-oferta">
+          <h4 class="nombre-producto">${oferta.nombre}</h4>
+          ${notaOpcionalHTML} 
+          <div class="precio-box">
+            <span class="p-zelle">${oferta.zelle} Zelle</span>
+            <span class="p-cup">${precioCUP_Vista.toLocaleString()} CUP</span>
+          </div>
+        </div>
+      </div>`;
 
-    misOfertas.forEach((oferta, index) => {
-        if (oferta.cat !== ultimoCat) {
-            const tituloHtml = `<h3 class="cat-titulo">${oferta.cat}</h3>`;
-            catalogo.innerHTML += tituloHtml;
-            reservaDoc.innerHTML += tituloHtml;
-            ultimoCat = oferta.cat;
-
-            if (ultimoCat === "Pizzas") {
-                const notaPizzas = `<div class="nota-importante">Con estas Pizzas comen 50 personas</div>`;
-                catalogo.innerHTML += notaPizzas;
-                reservaDoc.innerHTML += notaPizzas;
-            }
-        }
-
-
-        const notaOpcionalHTML = oferta.nota ? `<p class="nota-producto-card">${oferta.nota}</p>` : "";
-        
-        // Calculamos el CUP al vuelo para la vista
-        const precioCUP_Vista = oferta.zelle * TASA_CALCULO;
-
-        const cardHTML = `
-            <div class="card-oferta" onclick="agregarAlCarrito('${oferta.nombre}', ${oferta.zelle})">
-                <img src="${oferta.img ? 'img/' + oferta.img : 'https://via.placeholder.com/300x150'}" alt="${oferta.nombre}">
-                <div class="info-oferta">
-                    <h4 class="nombre-producto">${oferta.nombre}</h4>
-                    ${notaOpcionalHTML} 
-                    <div class="precio-box">
-                        <span class="p-zelle">${oferta.zelle} Zelle</span>
-                        <span class="p-cup">${precioCUP_Vista.toLocaleString()} CUP</span>
-                    </div>
-                </div>
-            </div>`;
-
-        catalogo.innerHTML += cardHTML;
-        reservaDoc.innerHTML += cardHTML;
-    });
+    catalogo.innerHTML += cardHTML;
+    reservaDoc.innerHTML += cardHTML;
+  });
 }
 
-
-// Ejecutar al cargar la página
-
+// Ejecutar al cargar
 window.onload = cargarContenido;
-
-
 
 // --- VARIABLES DE ESTADO ---
 
