@@ -346,7 +346,7 @@ function actualizarRemesa() {
     const valor = document.getElementById("remesa-input").value;
     const texto = document.getElementById("texto-remesa");
     if (valor && valor > 0) {
-        texto.textContent = "Se entregarán " + (valor * 500) + " pesos";
+        texto.textContent = "Se entregarán " + (valor * 485) + " pesos";
     } else {
         texto.textContent = "";
     }
