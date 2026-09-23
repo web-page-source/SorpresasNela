@@ -1,4 +1,51 @@
-// Abrir/Cerrar Menú
+// --- SÍNTESIS DE AUDIO PARA EFECTOS POP DIVERTIDOS ---
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new AudioContextClass();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+// Sonido brillante y limpio ÚNICAMENTE para Reservar y Siguiente
+function playPopButton() {
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(820, audioCtx.currentTime + 0.09);
+    
+    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.09);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.09);
+}
+
+// Función requerida por los onclick del HTML
+function reproducirSonido() {
+    playPopButton();
+}
+
+// Detección global: EXCLUSIVAMENTE los botones "Reservar" y "Siguiente" emitirán sonido
+document.addEventListener('pointerdown', function(e) {
+    const btnSoloSonido = e.target.closest('.reserve-btn, .next-floating-btn');
+    
+    if (btnSoloSonido) {
+        playPopButton();
+    }
+});
+
 function toggleMenu() {
     document.getElementById("sideMenu").classList.toggle("active");
 }
@@ -6,18 +53,18 @@ function toggleMenu() {
 const supabaseUrl = "https://yibtjtlkaaphyikdsbvq.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYnRqdGxrYWFwaHlpa2RzYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTE0MTUsImV4cCI6MjA5MjAyNzQxNX0.flnpvqOZNxS7uOny4TozRBveagv5j47rgnPhObKOKGU";
 
-// IMPORTANTE: Usamos 'supabase.createClient' porque la librería del CDN inyecta el objeto 'supabase'
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 async function cargarContenido() {
   const catalogo = document.getElementById('catalogo-container');
   const reservaDoc = document.getElementById('reserva-selector-container');
   const TASA_CALCULO = 450;
 
-  catalogo.innerHTML = "";
-  reservaDoc.innerHTML = "";
-  let ultimoCat = "";
+  if(!catalogo || !reservaDoc) return;
 
-  // 1. Traer productos activos desde la BD
+  catalogo.innerHTML = "<p style='text-align:center;'>Cargando ofertas...</p>";
+  reservaDoc.innerHTML = "";
+
   const { data: productos, error } = await _supabase
     .from("productos")
     .select("*")
@@ -25,11 +72,10 @@ async function cargarContenido() {
 
   if (error) {
     console.error("Error cargando productos:", error);
-    catalogo.innerHTML = "<p>Error al cargar productos</p>";
+    catalogo.innerHTML = "<p style='text-align:center;'>Error al cargar productos</p>";
     return;
   }
 
-  // 2. Ordenar productos según reglas
   const ordenPrioridad = ["La Sorpresa", "Decoración"];
   productos.sort((a, b) => {
     const idxA = ordenPrioridad.indexOf(a.cat);
@@ -41,36 +87,36 @@ async function cargarContenido() {
     if (a.cat === "Extras") return 1;
     if (b.cat === "Extras") return -1;
 
-    const catCompare = a.cat.localeCompare(b.cat);
-    return catCompare !== 0 ? catCompare : a.id - b.id;
+    return a.cat.localeCompare(b.cat) || a.id - b.id;
   });
 
-  // 3. Generar cards dinámicamente
+  let htmlCatalogo = "";
+  let htmlReserva = "";
+  let ultimoCat = "";
+
   productos.forEach((oferta) => {
     if (oferta.cat !== ultimoCat) {
-      const tituloHtml = `<h3 class="cat-titulo">${oferta.cat}</h3>`;
-      catalogo.innerHTML += tituloHtml;
-      reservaDoc.innerHTML += tituloHtml;
+      const tituloHtml = `<h3 class="cat-titulo" style="grid-column: 1/-1; text-align:center; margin-top:25px; margin-bottom:10px;">${oferta.cat}</h3>`;
+      htmlCatalogo += tituloHtml;
+      htmlReserva += tituloHtml;
       ultimoCat = oferta.cat;
 
       if (ultimoCat === "Pizzas") {
-        const notaPizzas = `<div class="nota-importante">Con estas Pizzas comen 50 personas</div>`;
-        catalogo.innerHTML += notaPizzas;
-        reservaDoc.innerHTML += notaPizzas;
+        const notaPizzas = `<div class="tagline" style="grid-column: 1/-1; text-align:center;">Pizzas para 50 personas</div>`;
+        htmlCatalogo += notaPizzas;
+        htmlReserva += notaPizzas;
       }
     }
 
-    const notaOpcionalHTML = oferta.nota ? `<p class="nota-producto-card">${oferta.nota}</p>` : "";
+    const notaOpcionalHTML = oferta.nota ? `<p style="font-size:0.8rem; opacity:0.8; margin-top:4px;">${oferta.nota}</p>` : "";
     const precioCUP_Vista = oferta.zelle * TASA_CALCULO;
-
-    // 🔹 Aquí usamos directamente la imagen de la BD (Base64 o URL)
     const imgSrc = oferta.img ? oferta.img : 'https://via.placeholder.com/300x150';
 
     const cardHTML = `
       <div class="card-oferta" onclick="agregarAlCarrito('${oferta.nombre}', ${oferta.zelle})">
-        <img src="${imgSrc}" alt="${oferta.nombre}">
+        <img src="${imgSrc}" alt="${oferta.nombre}" loading="lazy">
         <div class="info-oferta">
-          <h4 class="nombre-producto">${oferta.nombre}</h4>
+          <h4 style="text-align:center;">${oferta.nombre}</h4>
           ${notaOpcionalHTML} 
           <div class="precio-box">
             <span class="p-zelle">${oferta.zelle} Zelle</span>
@@ -79,26 +125,25 @@ async function cargarContenido() {
         </div>
       </div>`;
 
-    catalogo.innerHTML += cardHTML;
-    reservaDoc.innerHTML += cardHTML;
+    htmlCatalogo += cardHTML;
+    htmlReserva += cardHTML;
   });
+
+  catalogo.innerHTML = htmlCatalogo;
+  reservaDoc.innerHTML = htmlReserva;
 }
 
-// Ejecutar al cargar
 window.onload = cargarContenido;
 
-// --- VARIABLES DE ESTADO ---
-
 let carrito = [];
-
-let enFormulario = false; 
+let origenSeleccionado = null;
 
 function actualizarResumen() {
     const TASA_FIJA = 450; 
     const displayFormulario = document.getElementById("display-total-dinamico");
     const resumenDiv = document.getElementById("resumen-pedido");
     const totalDiv = document.getElementById("total-acumulado");
-    const selectTransporte = document.getElementById("municipio-select"); // Capturamos el select
+    const selectTransporte = document.getElementById("municipio-select");
     
     let totalItems = 0;
     let totalZelle = 0;
@@ -107,30 +152,21 @@ function actualizarResumen() {
     carrito.forEach((item, index) => {
         const precioZ = Number(item.precio) || 0;
         const subZ = precioZ * item.cantidad;
-        
         totalItems += item.cantidad;
         totalZelle += subZ;
 
         html += `
-        <div class="item-resumen" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:8px;">
-            <div style="flex: 1; min-width: 0; word-wrap: break-word;">
-                <span style="font-size: 0.9rem; display: block; line-height: 1.2;">
-                    <strong>${item.cantidad}x</strong> ${item.nombre}
-                </span>
-            </div>
-            <div style="display:flex; align-items:center;">
-                <button onclick="quitarUno(${index})" style="border:none; background:#ffeded; color:red; border-radius:5px; width:30px; height:30px; font-weight:bold;">-</button>
-            </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);">
+            <div><span><strong>${item.cantidad}x</strong> ${item.nombre}</span></div>
+            <button onclick="quitarUno(${index})" class="back-btn" style="padding:4px 10px; min-width:auto;">-</button>
         </div>`;
     });
 
-    // --- LÓGICA DE TRANSPORTE ---
     let costoTransporteZelle = 0;
-    // Sumamos solo si el menú está visible y tiene un valor seleccionado
     if (selectTransporte && selectTransporte.offsetParent !== null) {
         costoTransporteZelle = Number(selectTransporte.value) || 0;
         if (costoTransporteZelle > 0) {
-            html += `<p style="font-size:0.8rem; color: #7C5136; margin: 0;">+ Transporte equipo (${costoTransporteZelle} Zelle)</p>`;
+            html += `<p style="font-size:0.85rem; margin-top:5px; text-align:center;">+ Transporte (${costoTransporteZelle} Zelle)</p>`;
         }
     }
 
@@ -141,16 +177,12 @@ function actualizarResumen() {
         const valorMostrar = (origenSeleccionado === 'cuba') 
             ? `${totalCUP_Calculado.toLocaleString()} CUP` 
             : `${totalZelleFinal.toLocaleString()} Zelle`;
-
-        displayFormulario.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${valorMostrar}</span>`;
+        displayFormulario.innerHTML = `<span>Total a pagar: </span><strong>${valorMostrar}</strong>`;
     }
 
     if (resumenDiv) resumenDiv.innerHTML = html || "<p style='text-align:center;'>Carrito vacío</p>";
     if (totalDiv) totalDiv.innerHTML = `Total: ${totalZelleFinal} Zelle - ${totalCUP_Calculado.toLocaleString()} CUP`;
     
-    // ... resto de la lógica de botones se mantiene igual
     const cartCount = document.getElementById("cart-count");
     if (cartCount) cartCount.innerText = totalItems;
     
@@ -167,79 +199,55 @@ function actualizarResumen() {
     }
 }
 
-
 function irAlFormulario() {
     const overlay = document.getElementById("carrito-overlay");
     if (overlay) overlay.style.display = "none";
-
-    // Mostramos la página
     showPage('reserva-datos');
-    
-    // Forzamos la actualización visual
     actualizarResumenFinalEnFormulario();
 }
 
 function showPage(pageId) {
-    
-    // Si el usuario vuelve al inicio, reseteamos todo
     if (pageId === 'inicio') {
-        carrito = []; // Vaciamos el arreglo
-        // Si tienes campos de texto en el formulario, los limpiamos también:
+        carrito = [];
         const lugarInput = document.getElementById("lugar");
         const fechaInput = document.getElementById("fecha");
         if (lugarInput) lugarInput.value = "";
         if (fechaInput) fechaInput.value = "";
-        
-        console.log("Carrito vaciado y formulario reiniciado");
     }
 
     if (pageId === 'reserva-datos') {
         actualizarResumenFinalEnFormulario();
     }
-    // --------------------------------
 
-    // 1. Ocultamos todas las páginas
     const paginas = document.querySelectorAll('.page');
     paginas.forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // 2. Mostramos la página actual
     const activa = document.getElementById(pageId);
     if (activa) {
         activa.classList.add('active');
         activa.style.display = 'block';
     }
 
-    // 3. REGLA DE VISIBILIDAD Y ACTUALIZACIÓN
-    // Llamamos a actualizarResumen para que los botones desaparezcan 
-    // y el modal se limpie visualmente de inmediato.
     window.scrollTo(0, 0);
     actualizarResumen(); 
 }
 
-function agregarAlCarrito(nombre, precioZelle) { // <-- Quitamos precioCUP de aquí
+function agregarAlCarrito(nombre, precioZelle) {
     const paginaOfertas = document.getElementById('ofertas');
     if (paginaOfertas && paginaOfertas.classList.contains('active')) return;
 
     const itemExistente = carrito.find(item => item.nombre === nombre);
-    
     if (itemExistente) {
         itemExistente.cantidad++;
     } else {
-        carrito.push({ 
-            nombre: nombre, 
-            precio: precioZelle, 
-            // Ya no guardamos .cup aquí para evitar conflictos
-            cantidad: 1 
-        });
+        carrito.push({ nombre: nombre, precio: precioZelle, cantidad: 1 });
     }
     actualizarResumen();
 }
 
-
-// 5. FUNCIONES EXTRA
 function toggleCarrito() {
     const overlay = document.getElementById("carrito-overlay");
     if (overlay) {
@@ -258,79 +266,55 @@ function quitarUno(index) {
 
 function finalizarPedido() {
     const lugar = document.getElementById("lugar").value;
+    const fechaInput = document.getElementById('fecha').value; 
     const notas = document.getElementById("notas-provisionales").value;
     const selectTransporte = document.getElementById("municipio-select");
     const remesa = document.getElementById("remesa-input") ? document.getElementById("remesa-input").value : "";
-    let fechaInput = document.getElementById('fecha').value; 
-    let fechaLimpia = "";
 
-    if (fechaInput) {
-        // 1. Separamos fecha y hora
-        const partes = fechaInput.split("T");
-        const f = partes[0];
-        const h = partes[1];
-        
-        // 2. Extraer horas para AM/PM
-        let [h_pura, m_pura] = h.split(":");
-        let horas = parseInt(h_pura);
-        let minutos = m_pura;
-
-        let ampm = horas >= 12 ? "PM" : "AM";
-        
-        // Convertir a formato 12h
-        let horas12 = horas % 12;
-        horas12 = horas12 ? horas12 : 12; 
-
-        
-        fechaLimpia = `${f} - ${horas12}:${minutos} ${ampm}`;
-    }
-    const numero = "5350995513";
-    const TASA = 450; 
-
-    if (!lugar || !fecha) {
-        alert("Por favor, completa el lugar y la fecha de entrega.");
+    if (!lugar || !fechaInput) {
+        alert("Por favor, completa la ubicación y la fecha del evento.");
         return;
     }
 
-    // 1. Lista de productos
-   let listaProductos = carrito.map(i => i.cantidad + "x " + i.nombre).join("\n");
-    // 2. Cálculo de totales (Base + Transporte)
+    let fechaLimpia = "";
+    if (fechaInput) {
+        const partes = fechaInput.split("T");
+        const f = partes[0];
+        const h = partes[1];
+        let [h_pura, m_pura] = h.split(":");
+        let horas = parseInt(h_pura);
+        let ampm = horas >= 12 ? "PM" : "AM";
+        let horas12 = horas % 12 || 12; 
+        fechaLimpia = `${f} - ${horas12}:${m_pura} ${ampm}`;
+    }
+
+    const numero = "5350995513";
+    const TASA = 450; 
+
+    let listaProductos = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join("\n");
     let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
     let costoTransporteZelle = 0;
     let infoTransporte = "No requerido";
 
-    // Si el menú existe y tiene un valor seleccionado
     if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
         costoTransporteZelle = Number(selectTransporte.value);
         infoTransporte = selectTransporte.options[selectTransporte.selectedIndex].text;
     }
 
     let totalZelleFinal = totalZelleBase + costoTransporteZelle;
-    
-    // 3. Lógica de moneda según la selección
-    let totalFinalTexto = "";
-    if (origenSeleccionado === 'cuba') {
-        const totalCUP = totalZelleFinal * TASA;
-        totalFinalTexto = `${totalCUP.toLocaleString()} CUP`;
-    } else {
-        totalFinalTexto = `${totalZelleFinal.toLocaleString()} Zelle`;
-    }
+    let totalFinalTexto = (origenSeleccionado === 'cuba') 
+        ? `${(totalZelleFinal * TASA).toLocaleString()} CUP` 
+        : `${totalZelleFinal.toLocaleString()} Zelle`;
 
-const mensaje = " *NUEVO PEDIDO*\n\n" +
-                    listaProductos + "\n\n" +
-                    "*Transportación:* " + infoTransporte + "\n" +
-                    "*Total a pagar:* " + totalFinalTexto + "\n" +
-                    "*Lugar:* " + lugar + "\n" +
-                    "*Fecha:* " + fechaLimpia + "\n" +
-                    "*Notas:* " + notas + "\n" +
-                    "*Servicio de remesa:* " + (remesa ? remesa : "");
-                   
+    const mensaje = ` *NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
+                    `*Transportación:* ${infoTransporte}\n` +
+                    `*Total a pagar:* ${totalFinalTexto}\n` +
+                    `*Lugar:* ${lugar}\n` +
+                    `*Fecha:* ${fechaLimpia}\n` +
+                    `*Notas:* ${notas}\n` +
+                    `*Servicio de remesa:* ${remesa ? remesa : "No"}`;
 
-    // IMPORTANTE: Aunque no uses encodeURIComponent, para que Safari y otros
-    // navegadores no rompan el enlace al ver el "\n", usamos replace 
-    // solo para los saltos de línea al final.
     const mensajeLimpio = mensaje.split('\n').join('%0A');
-
     window.location.href = "https://wa.me/" + numero + "?text=" + mensajeLimpio;
 }
 
@@ -352,35 +336,32 @@ function actualizarRemesa() {
     }
 }
 
-// --- BASE DE DATOS DE VIDEOS LOCALES (Solo rutas) ---
 const baseDatosVideos = {
     bodas: [
-        {url: 'https://www.facebook.com/reel/939347828773117',thumb: 'img/amor1.jpg'}, // Videos verticales grabados con celular
-        {url: 'https://www.facebook.com/reel/32068951906084941',thumb: 'img/amor2.jpg'},
-        {url: 'https://www.facebook.com/reel/1178728713809724',thumb: 'img/amor3.jpg'},
+        {url: 'https://www.facebook.com/reel/939347828773117', thumb: 'img/amor1.jpg'},
+        {url: 'https://www.facebook.com/reel/32068951906084941', thumb: 'img/amor2.jpg'},
+        {url: 'https://www.facebook.com/reel/1178728713809724', thumb: 'img/amor3.jpg'},
     ],
     cumple: [
-        {url: 'https://www.facebook.com/reel/1226501842373495',thumb: 'img/cumple2.jpg'},
-        {url:'https://www.facebook.com/reel/1217206760595889',thumb: 'img/fondoc1.jpg'},
-        {url:'https://www.facebook.com/reel/25645078845160042',thumb: 'img/fondocumple3.jpg'},
+        {url: 'https://www.facebook.com/reel/1226501842373495', thumb: 'img/cumple2.jpg'},
+        {url: 'https://www.facebook.com/reel/1217206760595889', thumb: 'img/fondoc1.jpg'},
+        {url: 'https://www.facebook.com/reel/25645078845160042', thumb: 'img/fondocumple3.jpg'},
     ],
-    familia: [ // NUEVA CATEGORÍA
-        {url:'https://www.facebook.com/reel/1471106524634726',thumb: 'img/adian1.jpg'},
-        {url:'https://www.facebook.com/reel/3676869279122841',thumb: 'img/fodofam1.jpg'},
-        {url:'https://www.facebook.com/reel/876648678127336',thumb: 'img/fondofam2.jpg'},
+    familia: [
+        {url: 'https://www.facebook.com/reel/1471106524634726', thumb: 'img/adian1.jpg'},
+        {url: 'https://www.facebook.com/reel/3676869279122841', thumb: 'img/fodofam1.jpg'},
+        {url: 'https://www.facebook.com/reel/876648678127336', thumb: 'img/fondofam2.jpg'},
     ]
 };
+
 function abrirGaleriaVideos(categoria) {
     const modal = document.getElementById("video-galeria-modal");
     const container = document.getElementById("video-reproductores-container");
     const titulo = document.getElementById("video-galeria-titulo");
 
     if (!container || !modal) return;
-
-    // 1. Limpiar contenido previo
     container.innerHTML = "";
 
-    // 2. Títulos dinámicos según la categoría
     const titulosMap = {
         'bodas': "Porque el amor mueve el mundo",
         'cumple': "Porque mereces ser feliz en tu día",
@@ -388,106 +369,55 @@ function abrirGaleriaVideos(categoria) {
     };
     titulo.innerText = titulosMap[categoria] || "Galería de Momentos";
 
-    // 3. Obtener videos de la base de datos
     const listaVideos = baseDatosVideos[categoria] || [];
-
     if (listaVideos.length > 0) {
-       listaVideos.forEach((video, index) => {
-    const mosaicoHtml = `
-        <div class="video-card-fb" 
-             onclick="window.open('${video.url}', '_blank')"
-             style="background-image: url('${video.thumb}'); background-size: cover;">
-            <div class="play-overlay">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="30">
-            </div>
-        </div>`;
-    container.innerHTML += mosaicoHtml;
-});
+        listaVideos.forEach((video) => {
+            container.innerHTML += `
+                <div class="video-card-fb" onclick="window.open('${video.url}', '_blank')" style="background-image: url('${video.thumb}'); background-size: cover; height: 180px; border-radius: 16px; position: relative; cursor: pointer;">
+                    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.25); border-radius:16px; display:flex; justify-content:center; align-items:center;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="35" alt="Play">
+                    </div>
+                </div>`;
+        });
     } else {
-        container.innerHTML = "<p style='color:gray; text-align:center; grid-column: 1/-1;'>Próximamente más recuerdos...</p>";
+        container.innerHTML = "<p style='color:gray; text-align:center;'>Próximamente más recuerdos...</p>";
     }
 
-    // 4. Abrir el modal y bloquear scroll
-    modal.classList.add('open');
-    modal.style.display = "flex"; // Asegura visibilidad si no usas solo clases
+    modal.style.display = "flex";
     document.body.style.overflow = "hidden";
 }
 
-// Función para cerrar (Asegúrate de tenerla así)
 function cerrarGaleriaVideos() {
     const modal = document.getElementById("video-galeria-modal");
     if (modal) {
-        modal.classList.remove('open');
         modal.style.display = "none";
         document.body.style.overflow = "auto";
     }
 }
 
-
-
-
-window.onclick = function(event) {
-    const modal = document.getElementById("video-galeria-modal");
-    if (event.target === modal) {
-        cerrarGaleriaVideos();
-    }
-}
-// CERRAR AL CLICKEAR FUERA
 document.addEventListener("click", function(event) {
     const sideMenu = document.getElementById("sideMenu");
     const menuBtn = document.querySelector(".menu-btn");
-
-    // Si el menú está abierto Y el clic NO fue dentro del menú Y NO fue en el botón de abrir...
-    if (sideMenu.classList.contains("active") && 
-        !sideMenu.contains(event.target) && 
-        !menuBtn.contains(event.target)) {
-        
+    if (sideMenu && sideMenu.classList.contains("active") && !sideMenu.contains(event.target) && !menuBtn.contains(event.target)) {
         sideMenu.classList.remove("active");
     }
 });
-let origenSeleccionado = null;
 
 function seleccionarOrigen(tipo) {
     origenSeleccionado = tipo;
-
     const btnCuba = document.getElementById('btn-pago-cuba');
     const btnExterior = document.getElementById('btn-pago-exterior');
     const bloqueDetalles = document.getElementById('campos-detalles-reserva');
     const displayTotal = document.getElementById('display-total-dinamico');
 
-    // Lógica de clases visuales
-    btnCuba.classList.remove('seleccionada');
-    btnExterior.classList.remove('seleccionada');
+    if(btnCuba) btnCuba.classList.remove('seleccionada');
+    if(btnExterior) btnExterior.classList.remove('seleccionada');
 
-    if (tipo === 'cuba') {
-        btnCuba.classList.add('seleccionada');
-    } else {
-        btnExterior.classList.add('seleccionada');
-    }
+    if (tipo === 'cuba' && btnCuba) btnCuba.classList.add('seleccionada');
+    if (tipo === 'exterior' && btnExterior) btnExterior.classList.add('seleccionada');
 
-    // --- CÁLCULO CON TASA DE CAMBIO ---
-    const TASA = 450; 
-    let totalZelle = 0;
-
-    carrito.forEach(item => {
-        totalZelle += (item.precio * item.cantidad);
-    });
-
-    // Calculamos el CUP basado en el total Zelle acumulado
-    let totalCUP = totalZelle * TASA;
-
-    bloqueDetalles.style.display = "block";
-    displayTotal.style.display = "block";
-
-    if (tipo === 'cuba') {
-        displayTotal.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${totalCUP.toLocaleString()} CUP</span>`;
-    } else {
-        displayTotal.innerHTML = `
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">Total a pagar: </span>
-            <span style="font-family: 'Adlery'; color: var(--color-texto);">${totalZelle.toLocaleString()} Zelle</span>`;
-    }
+    if(bloqueDetalles) bloqueDetalles.style.display = "block";
+    if(displayTotal) displayTotal.style.display = "block";
 
     actualizarResumenFinalEnFormulario();
 }
@@ -505,54 +435,34 @@ function actualizarResumenFinalEnFormulario() {
         return;
     }
 
-    let html = "<h4 style='margin-bottom:10px; border-bottom:1px solid #7C5136;'>Tu Pedido Actual:</h4><ul>";
+    let html = "<h4 style='text-align:center; margin-bottom:10px;'>Tu Pedido Actual:</h4><ul style='list-style:none; padding:0;'>";
     let totalZelle = 0;
 
-    // 1. Sumar productos
     carrito.forEach(item => {
-        const subZ = item.precio * item.cantidad;
-        totalZelle += subZ;
-        html += `<li><strong>${item.cantidad}x</strong> ${item.nombre}</li>`;
+        totalZelle += item.precio * item.cantidad;
+        html += `<li style='text-align:center;'><strong>${item.cantidad}x</strong> ${item.nombre}</li>`;
     });
 
-    // 2. Sumar Transporte (si está visible y seleccionado)
-    let infoTransporte = "";
     if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
-        const extra = Number(selectTransporte.value);
-        totalZelle += extra;
-        infoTransporte = selectTransporte.options[selectTransporte.selectedIndex].text;
-        html += `<li style="color: #7C5136; font-weight: bold;">Transporte: ${infoTransporte}</li>`;
+        totalZelle += Number(selectTransporte.value);
+        html += `<li style="font-weight: bold; margin-top:5px; text-align:center;">Transporte: ${selectTransporte.options[selectTransporte.selectedIndex].text}</li>`;
     }
 
     html += "</ul>";
     contenedorResumen.innerHTML = html;
 
-    // 3. ACTUALIZACIÓN DEL TOTAL (Aquí está la magia)
-    // Esta parte asegura que el precio cambie si el usuario cambia la moneda
     if (displayTotal) {
-        if (origenSeleccionado === 'cuba') {
-            const totalCUP = totalZelle * TASA;
-            displayTotal.innerHTML = `
-                <span style="font-family: 'Adlery';">Total a pagar: </span>
-                <span style="font-family: 'Adlery';">${totalCUP.toLocaleString()} CUP</span>`;
-        } else {
-            displayTotal.innerHTML = `
-                <span style="font-family: 'Adlery';">Total a pagar: </span>
-                <span style="font-family: 'Adlery';">${totalZelle.toLocaleString()} Zelle</span>`;
-        }
+        const textoTotal = (origenSeleccionado === 'cuba') 
+            ? `${(totalZelle * TASA).toLocaleString()} CUP` 
+            : `${totalZelle.toLocaleString()} Zelle`;
+        displayTotal.innerHTML = `<span>Total a pagar: </span><strong>${textoTotal}</strong>`;
     }
 }
 
 function toggleMenuTransporte(mostrar) {
     const menu = document.getElementById("menu-municipios");
-    if (!menu) return;
-
-    menu.style.display = mostrar ? "block" : "none";
-    
-    if (!mostrar) {
-        document.getElementById("municipio-select").value = "0";
-    }
-    
-    actualizarResumen();// Recalcula el total y el resumen visual inmediatamente
+    if (menu) menu.style.display = mostrar ? "block" : "none";
+    if (!mostrar) document.getElementById("municipio-select").value = "0";
+    actualizarResumen();
     actualizarResumenFinalEnFormulario();
 }
