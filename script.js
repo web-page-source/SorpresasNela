@@ -50,21 +50,53 @@ function toggleMenu() {
     document.getElementById("sideMenu").classList.toggle("active");
 }
 
-const supabaseUrl = "https://yibtjtlkaaphyikdsbvq.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpYnRqdGxrYWFwaHlpa2RzYnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTE0MTUsImV4cCI6MjA5MjAyNzQxNX0.flnpvqOZNxS7uOny4TozRBveagv5j47rgnPhObKOKGU";
+// Obtención de credenciales desde el archivo config/env.js
+const supabaseUrl = window.ENV?.SUPABASE_URL;
+const supabaseKey = window.ENV?.SUPABASE_KEY;
 
-const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+let _supabase = null;
+let tasaZelleCUP = 450; // Valor por defecto en caso de fallo de red
+
+if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && supabaseKey) {
+    _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+} else {
+    console.error("No se encontraron las credenciales de Supabase en config/env.js");
+}
+
+// Función para obtener la tasa Zelle -> CUP desde la tabla 'configuracion'
+async function obtenerTasa() {
+    if (!_supabase) return;
+    try {
+        const { data, error } = await _supabase
+            .from("configuracion")
+            .select("*")
+            .maybeSingle();
+
+        if (!error && data) {
+            // Lee la propiedad donde se almacena la tasa
+            const tasaConsultada = data.tasa_zelle_cup ?? data.valor ?? data.tasa;
+            if (tasaConsultada && !isNaN(Number(tasaConsultada))) {
+                tasaZelleCUP = Number(tasaConsultada);
+            }
+        }
+    } catch (err) {
+        console.error("Error al consultar la tasa en configuracion:", err);
+    }
+}
 
 async function cargarContenido() {
   const catalogo = document.getElementById('catalogo-container');
   const reservaDoc = document.getElementById('reserva-selector-container');
-  const TASA_CALCULO = 450;
 
   if(!catalogo || !reservaDoc) return;
 
   catalogo.innerHTML = "<p style='text-align:center;'>Cargando ofertas...</p>";
   reservaDoc.innerHTML = "";
 
+  // 1. Consultar la tasa dinámica desde la base de datos
+  await obtenerTasa();
+
+  // 2. Cargar los productos
   const { data: productos, error } = await _supabase
     .from("productos")
     .select("*")
@@ -109,7 +141,7 @@ async function cargarContenido() {
     }
 
     const notaOpcionalHTML = oferta.nota ? `<p style="font-size:0.8rem; opacity:0.8; margin-top:4px;">${oferta.nota}</p>` : "";
-    const precioCUP_Vista = oferta.zelle * TASA_CALCULO;
+    const precioCUP_Vista = oferta.zelle * tasaZelleCUP;
     const imgSrc = oferta.img ? oferta.img : 'https://via.placeholder.com/300x150';
 
     const cardHTML = `
@@ -139,7 +171,6 @@ let carrito = [];
 let origenSeleccionado = null;
 
 function actualizarResumen() {
-    const TASA_FIJA = 450; 
     const displayFormulario = document.getElementById("display-total-dinamico");
     const resumenDiv = document.getElementById("resumen-pedido");
     const totalDiv = document.getElementById("total-acumulado");
@@ -171,7 +202,7 @@ function actualizarResumen() {
     }
 
     const totalZelleFinal = totalZelle + costoTransporteZelle;
-    const totalCUP_Calculado = totalZelleFinal * TASA_FIJA;
+    const totalCUP_Calculado = totalZelleFinal * tasaZelleCUP;
 
     if (displayFormulario) {
         const valorMostrar = (origenSeleccionado === 'cuba') 
@@ -289,7 +320,6 @@ function finalizarPedido() {
     }
 
     const numero = "5350995513";
-    const TASA = 450; 
 
     let listaProductos = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join("\n");
     let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
@@ -303,7 +333,7 @@ function finalizarPedido() {
 
     let totalZelleFinal = totalZelleBase + costoTransporteZelle;
     let totalFinalTexto = (origenSeleccionado === 'cuba') 
-        ? `${(totalZelleFinal * TASA).toLocaleString()} CUP` 
+        ? `${(totalZelleFinal * tasaZelleCUP).toLocaleString()} CUP` 
         : `${totalZelleFinal.toLocaleString()} Zelle`;
 
     const mensaje = ` *NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
@@ -426,7 +456,6 @@ function actualizarResumenFinalEnFormulario() {
     const contenedorResumen = document.getElementById("resumen-final-datos");
     const displayTotal = document.getElementById('display-total-dinamico');
     const selectTransporte = document.getElementById("municipio-select");
-    const TASA = 450;
 
     if (!contenedorResumen) return;
 
@@ -453,7 +482,7 @@ function actualizarResumenFinalEnFormulario() {
 
     if (displayTotal) {
         const textoTotal = (origenSeleccionado === 'cuba') 
-            ? `${(totalZelle * TASA).toLocaleString()} CUP` 
+            ? `${(totalZelle * tasaZelleCUP).toLocaleString()} CUP` 
             : `${totalZelle.toLocaleString()} Zelle`;
         displayTotal.innerHTML = `<span>Total a pagar: </span><strong>${textoTotal}</strong>`;
     }
