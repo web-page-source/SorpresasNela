@@ -274,6 +274,11 @@ h1, h2, h3, h4, h5, h6,
     font-weight: 600;
 }
 
+/* Enlaces de redes del menú lateral */
+.social-icon-btn.fb { color: #1877F2; }
+.social-icon-btn.ig { color: #C13584; }
+.social-icon-btn:hover { transform: translateY(-2px); box-shadow: var(--neu-hover); }
+
 /* --- SECCIÓN REDES SOCIALES --- */
 .social-buttons-container {
     display: grid;
@@ -344,7 +349,7 @@ h1, h2, h3, h4, h5, h6,
     box-shadow: var(--neu-inset) !important;
 }
 
-.worker-card img, .card-oferta img, .deco-foto {
+.worker-card img, .card-oferta img {
     width: 100%;
     height: auto;
     max-height: 200px;
@@ -352,6 +357,21 @@ h1, h2, h3, h4, h5, h6,
     margin: 0 auto;
     object-fit: contain;
     background-color: var(--color-tarjeta);
+}
+
+/* --- FOTOS DE DECORACIONES: se ven completas y centradas en la card --- */
+.deco-foto {
+    width: 100%;
+    height: 220px;
+    background-color: var(--color-tarjeta);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;     /* la foto llena toda la card */
+    flex-shrink: 0;
+}
+
+.deco-detalles h3 {
+    font-size: 1rem;
 }
 
 .info-worker, .info-oferta, .deco-detalles {
@@ -479,7 +499,8 @@ input:focus, textarea:focus, select:focus {
 
 /* RESPONSIVO MÓVILES */
 @media (max-width: 600px) {
-    .equipo-grid, .grid-ofertas { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .equipo-grid, .grid-ofertas, .decoracion-dos-columnas { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .deco-foto { height: 160px; }
     .social-buttons-container { grid-template-columns: repeat(2, 1fr); }
     .worker-card img, .card-oferta img { height: auto; max-height: 150px; }
     .page { padding-left: 14px; padding-right: 14px; }

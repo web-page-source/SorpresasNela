@@ -45,8 +45,8 @@
         <div class="side-socials">
             <p style="font-weight:700; font-size:0.85rem; margin-bottom:10px; color:var(--color-texto-suave);">NUESTRAS REDES</p>
             <div class="social-grid-mini">
-                <a href="https://www.facebook.com/profile.php?id=61581149286955" target="_blank" class="social-icon-btn fb">Facebook</a>
-                <a href="https://www.instagram.com/sorpresasnela/" target="_blank" class="social-icon-btn ig">Instagram</a>
+                <a href="https://www.facebook.com/profile.php?id=61581149286955" target="_blank" rel="noopener noreferrer" class="social-icon-btn fb">Facebook</a>
+                <a href="https://www.instagram.com/sorpresasnela/" target="_blank" rel="noopener noreferrer" class="social-icon-btn ig">Instagram</a>
            </div>
         </div>
     </div>
@@ -237,7 +237,10 @@
             <button onclick="toggleCarrito()" style="background:none; border:none; text-decoration:underline; width:100%; margin-top:15px; cursor:pointer; color:var(--color-texto); font-weight:bold;">Continuar comprando</button>
         </div>
     </div>
+<!-- Carga de variables de entorno globales -->
+    <script src="config/env.js"></script>
 
+    <!-- Librería de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>

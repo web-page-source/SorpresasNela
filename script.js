@@ -32,9 +32,25 @@ function playPopButton() {
     osc.stop(audioCtx.currentTime + 0.09);
 }
 
-// Función requerida por los onclick del HTML
-function reproducirSonido() {
-    playPopButton();
+// --- UTILIDADES ---
+// Imagen de respaldo local (SVG embebido, no depende de ningún servicio externo)
+const IMG_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='300' height='150' viewBox='0 0 300 150'>" +
+    "<rect width='300' height='150' fill='#EEDCD0'/>" +
+    "<text x='150' y='82' font-family='sans-serif' font-size='16' fill='#7C5136' text-anchor='middle'>Sin imagen</text>" +
+    "</svg>"
+);
+
+// Escapa texto antes de insertarlo en HTML dinámico
+function escapeHTML(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+}
+
+// Comparación segura de ids (numéricos o texto)
+function compararId(a, b) {
+    return String(a).localeCompare(String(b), undefined, { numeric: true });
 }
 
 // Detección global: EXCLUSIVAMENTE los botones "Reservar" y "Siguiente" emitirán sonido
@@ -56,6 +72,7 @@ const supabaseKey = window.ENV?.SUPABASE_KEY;
 
 let _supabase = null;
 let tasaZelleCUP = 450; // Valor por defecto en caso de fallo de red
+let tasaRemesaCUP = 485; // Tasa de remesa por defecto (se puede sobrescribir con 'tasa_remesa' en la tabla 'configuracion')
 
 if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && supabaseKey) {
     _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -78,80 +95,121 @@ async function obtenerTasa() {
             if (tasaConsultada && !isNaN(Number(tasaConsultada))) {
                 tasaZelleCUP = Number(tasaConsultada);
             }
+
+            const tasaRemesaConsultada = data.tasa_remesa;
+            if (tasaRemesaConsultada && !isNaN(Number(tasaRemesaConsultada))) {
+                tasaRemesaCUP = Number(tasaRemesaConsultada);
+            }
         }
     } catch (err) {
         console.error("Error al consultar la tasa en configuracion:", err);
     }
 }
 
+const productosPorId = {};
+
 async function cargarContenido() {
   const catalogo = document.getElementById('catalogo-container');
   const reservaDoc = document.getElementById('reserva-selector-container');
 
-  if(!catalogo || !reservaDoc) return;
+  if (!catalogo || !reservaDoc) return;
 
-  catalogo.innerHTML = "<p style='text-align:center;'>Cargando ofertas...</p>";
-  reservaDoc.innerHTML = "";
+  const mensaje = (texto) => `<p style="text-align:center; grid-column:1/-1;">${texto}</p>`;
+
+  if (!_supabase) {
+    catalogo.innerHTML = mensaje("No se pudo conectar con el catálogo. Intenta de nuevo más tarde.");
+    reservaDoc.innerHTML = mensaje("No se pudo conectar con el catálogo. Intenta de nuevo más tarde.");
+    return;
+  }
+
+  catalogo.innerHTML = mensaje("Cargando ofertas...");
+  reservaDoc.innerHTML = mensaje("Cargando ofertas...");
 
   // 1. Consultar la tasa dinámica desde la base de datos
   await obtenerTasa();
 
   // 2. Cargar los productos
-  const { data: productos, error } = await _supabase
-    .from("productos")
-    .select("*")
-    .eq("activo", true);
+  let productos = null;
+  let error = null;
+  try {
+    const respuesta = await _supabase
+      .from("productos")
+      .select("*")
+      .eq("activo", true);
+    productos = respuesta.data;
+    error = respuesta.error;
+  } catch (err) {
+    error = err;
+  }
 
-  if (error) {
+  if (error || !productos) {
     console.error("Error cargando productos:", error);
-    catalogo.innerHTML = "<p style='text-align:center;'>Error al cargar productos</p>";
+    catalogo.innerHTML = mensaje("Error al cargar productos");
+    reservaDoc.innerHTML = mensaje("Error al cargar productos");
+    return;
+  }
+
+  if (productos.length === 0) {
+    catalogo.innerHTML = mensaje("Próximamente más ofertas...");
+    reservaDoc.innerHTML = mensaje("Próximamente más ofertas...");
     return;
   }
 
   const ordenPrioridad = ["La Sorpresa", "Decoración"];
   productos.sort((a, b) => {
-    const idxA = ordenPrioridad.indexOf(a.cat);
-    const idxB = ordenPrioridad.indexOf(b.cat);
+    const catA = a.cat || "";
+    const catB = b.cat || "";
+    const idxA = ordenPrioridad.indexOf(catA);
+    const idxB = ordenPrioridad.indexOf(catB);
 
-    if (idxA !== -1 && idxB !== -1) return idxA - idxB || a.id - b.id;
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB || compararId(a.id, b.id);
     if (idxA !== -1) return -1;
     if (idxB !== -1) return 1;
-    if (a.cat === "Extras") return 1;
-    if (b.cat === "Extras") return -1;
+    if (catA === "Extras" && catB !== "Extras") return 1;
+    if (catB === "Extras" && catA !== "Extras") return -1;
 
-    return a.cat.localeCompare(b.cat) || a.id - b.id;
+    return catA.localeCompare(catB) || compararId(a.id, b.id);
   });
 
   let htmlCatalogo = "";
   let htmlReserva = "";
-  let ultimoCat = "";
+  let ultimoCat = null;
 
   productos.forEach((oferta) => {
-    if (oferta.cat !== ultimoCat) {
-      const tituloHtml = `<h3 class="cat-titulo" style="grid-column: 1/-1; text-align:center; margin-top:25px; margin-bottom:10px;">${oferta.cat}</h3>`;
+    productosPorId[String(oferta.id)] = {
+      id: oferta.id,
+      nombre: oferta.nombre,
+      precio: Number(oferta.zelle) || 0
+    };
+
+    const categoria = oferta.cat || "Otros";
+
+    if (categoria !== ultimoCat) {
+      const tituloHtml = `<h3 class="cat-titulo" style="grid-column: 1/-1; text-align:center; margin-top:25px; margin-bottom:10px;">${escapeHTML(categoria)}</h3>`;
       htmlCatalogo += tituloHtml;
       htmlReserva += tituloHtml;
-      ultimoCat = oferta.cat;
+      ultimoCat = categoria;
 
-      if (ultimoCat === "Pizzas") {
+      if (categoria === "Pizzas") {
         const notaPizzas = `<div class="tagline" style="grid-column: 1/-1; text-align:center;">Pizzas para 50 personas</div>`;
         htmlCatalogo += notaPizzas;
         htmlReserva += notaPizzas;
       }
     }
 
-    const notaOpcionalHTML = oferta.nota ? `<p style="font-size:0.8rem; opacity:0.8; margin-top:4px;">${oferta.nota}</p>` : "";
-    const precioCUP_Vista = oferta.zelle * tasaZelleCUP;
-    const imgSrc = oferta.img ? oferta.img : 'https://via.placeholder.com/300x150';
+    const notaOpcionalHTML = oferta.nota ? `<p style="font-size:0.8rem; opacity:0.8; margin-top:4px;">${escapeHTML(oferta.nota)}</p>` : "";
+    const precioZelle = Number(oferta.zelle) || 0;
+    const precioCUP_Vista = precioZelle * tasaZelleCUP;
+    const imgSrc = oferta.img ? oferta.img : IMG_FALLBACK;
 
     const cardHTML = `
-      <div class="card-oferta" onclick="agregarAlCarrito('${oferta.nombre}', ${oferta.zelle})">
-        <img src="${imgSrc}" alt="${oferta.nombre}" loading="lazy">
+      <div class="card-oferta" data-id="${escapeHTML(oferta.id)}">
+        <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(oferta.nombre)}" loading="lazy" onerror="this.onerror=null;this.src=IMG_FALLBACK;">
         <div class="info-oferta">
-          <h4 style="text-align:center;">${oferta.nombre}</h4>
-          ${notaOpcionalHTML} 
+          <h4 style="text-align:center;">${escapeHTML(oferta.nombre)}</h4>
+          ${notaOpcionalHTML}
           <div class="precio-box">
-            <span class="p-zelle">${oferta.zelle} Zelle</span>
+            <span class="p-zelle">${precioZelle} Zelle</span>
             <span class="p-cup">${precioCUP_Vista.toLocaleString()} CUP</span>
           </div>
         </div>
@@ -164,6 +222,12 @@ async function cargarContenido() {
   catalogo.innerHTML = htmlCatalogo;
   reservaDoc.innerHTML = htmlReserva;
 }
+
+// Selección de productos por delegación de eventos (usa el id, no el nombre)
+document.addEventListener("click", function(event) {
+  const card = event.target.closest(".card-oferta[data-id]");
+  if (card) agregarAlCarrito(card.dataset.id);
+});
 
 window.onload = cargarContenido;
 
@@ -188,7 +252,7 @@ function actualizarResumen() {
 
         html += `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(0,0,0,0.05);">
-            <div><span><strong>${item.cantidad}x</strong> ${item.nombre}</span></div>
+            <div><span><strong>${item.cantidad}x</strong> ${escapeHTML(item.nombre)}</span></div>
             <button onclick="quitarUno(${index})" class="back-btn" style="padding:4px 10px; min-width:auto;">-</button>
         </div>`;
     });
@@ -237,13 +301,37 @@ function irAlFormulario() {
     actualizarResumenFinalEnFormulario();
 }
 
+function resetFormulario() {
+    origenSeleccionado = null;
+    ['btn-pago-cuba', 'btn-pago-exterior'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.classList.remove('seleccionada');
+    });
+
+    const detalles = document.getElementById('campos-detalles-reserva');
+    const total = document.getElementById('display-total-dinamico');
+    if (detalles) detalles.style.display = 'none';
+    if (total) total.style.display = 'none';
+
+    document.querySelectorAll('input[name="transporte-sn"][value="no"], input[name="remesa-sn"][value="no"]')
+        .forEach(r => { r.checked = true; });
+
+    const menuMunicipios = document.getElementById('menu-municipios');
+    const selectMunicipio = document.getElementById('municipio-select');
+    if (menuMunicipios) menuMunicipios.style.display = 'none';
+    if (selectMunicipio) selectMunicipio.value = '0';
+    toggleRemesa(false);
+
+    ['lugar', 'fecha', 'notas-provisionales'].forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) campo.value = '';
+    });
+}
+
 function showPage(pageId) {
     if (pageId === 'inicio') {
         carrito = [];
-        const lugarInput = document.getElementById("lugar");
-        const fechaInput = document.getElementById("fecha");
-        if (lugarInput) lugarInput.value = "";
-        if (fechaInput) fechaInput.value = "";
+        resetFormulario();
     }
 
     if (pageId === 'reserva-datos') {
@@ -266,15 +354,18 @@ function showPage(pageId) {
     actualizarResumen(); 
 }
 
-function agregarAlCarrito(nombre, precioZelle) {
+function agregarAlCarrito(id) {
     const paginaOfertas = document.getElementById('ofertas');
     if (paginaOfertas && paginaOfertas.classList.contains('active')) return;
 
-    const itemExistente = carrito.find(item => item.nombre === nombre);
+    const producto = productosPorId[String(id)];
+    if (!producto) return;
+
+    const itemExistente = carrito.find(item => String(item.id) === String(producto.id));
     if (itemExistente) {
         itemExistente.cantidad++;
     } else {
-        carrito.push({ nombre: nombre, precio: precioZelle, cantidad: 1 });
+        carrito.push({ id: producto.id, nombre: producto.nombre, precio: producto.precio, cantidad: 1 });
     }
     actualizarResumen();
 }
@@ -296,56 +387,82 @@ function quitarUno(index) {
 }
 
 function finalizarPedido() {
-    const lugar = document.getElementById("lugar").value;
-    const fechaInput = document.getElementById('fecha').value; 
-    const notas = document.getElementById("notas-provisionales").value;
+    const lugar = document.getElementById("lugar").value.trim();
+    const fechaInput = document.getElementById("fecha").value;
+    const notas = document.getElementById("notas-provisionales").value.trim();
     const selectTransporte = document.getElementById("municipio-select");
-    const remesa = document.getElementById("remesa-input") ? document.getElementById("remesa-input").value : "";
+    const remesaInput = document.getElementById("remesa-input");
+    const remesa = remesaInput ? Number(remesaInput.value) : 0;
+
+    if (carrito.length === 0) {
+        alert("Tu pedido está vacío. Selecciona al menos un producto.");
+        showPage('reserva-seleccion');
+        return;
+    }
+
+    if (!origenSeleccionado) {
+        alert("Indica desde dónde realizas la reserva (Cuba o Exterior).");
+        return;
+    }
+
+    const quiereTransporte = document.querySelector('input[name="transporte-sn"]:checked')?.value === "si";
+    if (quiereTransporte && (!selectTransporte || selectTransporte.value === "0")) {
+        alert("Selecciona la ubicación para el transporte del equipo.");
+        return;
+    }
+
+    const quiereRemesa = document.querySelector('input[name="remesa-sn"]:checked')?.value === "si";
+    if (quiereRemesa && !(remesa > 0)) {
+        alert("Indica el monto en Zelle para el servicio de remesa.");
+        return;
+    }
 
     if (!lugar || !fechaInput) {
         alert("Por favor, completa la ubicación y la fecha del evento.");
         return;
     }
 
-    let fechaLimpia = "";
-    if (fechaInput) {
-        const partes = fechaInput.split("T");
-        const f = partes[0];
-        const h = partes[1];
-        let [h_pura, m_pura] = h.split(":");
-        let horas = parseInt(h_pura);
-        let ampm = horas >= 12 ? "PM" : "AM";
-        let horas12 = horas % 12 || 12; 
-        fechaLimpia = `${f} - ${horas12}:${m_pura} ${ampm}`;
+    const partes = fechaInput.split("T");
+    if (partes.length < 2 || !partes[1]) {
+        alert("Por favor, indica la fecha y la hora del evento.");
+        return;
     }
+    const [h_pura, m_pura] = partes[1].split(":");
+    const horas = parseInt(h_pura, 10);
+    const ampm = horas >= 12 ? "PM" : "AM";
+    const horas12 = horas % 12 || 12;
+    const fechaLimpia = `${partes[0]} - ${horas12}:${m_pura} ${ampm}`;
 
     const numero = "5350995513";
 
-    let listaProductos = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join("\n");
-    let totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
+    const listaProductos = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join("\n");
+    const totalZelleBase = carrito.reduce((acc, i) => acc + (i.precio * i.cantidad), 0);
     let costoTransporteZelle = 0;
     let infoTransporte = "No requerido";
 
-    if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
+    if (quiereTransporte && selectTransporte && selectTransporte.value !== "0") {
         costoTransporteZelle = Number(selectTransporte.value);
         infoTransporte = selectTransporte.options[selectTransporte.selectedIndex].text;
     }
 
-    let totalZelleFinal = totalZelleBase + costoTransporteZelle;
-    let totalFinalTexto = (origenSeleccionado === 'cuba') 
-        ? `${(totalZelleFinal * tasaZelleCUP).toLocaleString()} CUP` 
+    const totalZelleFinal = totalZelleBase + costoTransporteZelle;
+    const totalFinalTexto = (origenSeleccionado === 'cuba')
+        ? `${(totalZelleFinal * tasaZelleCUP).toLocaleString()} CUP`
         : `${totalZelleFinal.toLocaleString()} Zelle`;
 
-    const mensaje = ` *NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
+    const infoRemesa = quiereRemesa
+        ? `${remesa} Zelle (${(remesa * tasaRemesaCUP).toLocaleString()} CUP)`
+        : "No";
+
+    const mensaje = `*NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
                     `*Transportación:* ${infoTransporte}\n` +
                     `*Total a pagar:* ${totalFinalTexto}\n` +
                     `*Lugar:* ${lugar}\n` +
                     `*Fecha:* ${fechaLimpia}\n` +
-                    `*Notas:* ${notas}\n` +
-                    `*Servicio de remesa:* ${remesa ? remesa : "No"}`;
+                    `*Notas:* ${notas || "Ninguna"}\n` +
+                    `*Servicio de remesa:* ${infoRemesa}`;
 
-    const mensajeLimpio = mensaje.split('\n').join('%0A');
-    window.location.href = "https://wa.me/" + numero + "?text=" + mensajeLimpio;
+    window.location.href = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensaje);
 }
 
 function toggleRemesa(show) {
@@ -360,7 +477,7 @@ function actualizarRemesa() {
     const valor = document.getElementById("remesa-input").value;
     const texto = document.getElementById("texto-remesa");
     if (valor && valor > 0) {
-        texto.textContent = "Se entregarán " + (valor * 485) + " pesos";
+        texto.textContent = "Se entregarán " + (valor * tasaRemesaCUP).toLocaleString() + " pesos";
     } else {
         texto.textContent = "";
     }
@@ -469,7 +586,7 @@ function actualizarResumenFinalEnFormulario() {
 
     carrito.forEach(item => {
         totalZelle += item.precio * item.cantidad;
-        html += `<li style='text-align:center;'><strong>${item.cantidad}x</strong> ${item.nombre}</li>`;
+        html += `<li style='text-align:center;'><strong>${item.cantidad}x</strong> ${escapeHTML(item.nombre)}</li>`;
     });
 
     if (selectTransporte && selectTransporte.offsetParent !== null && selectTransporte.value !== "0") {
