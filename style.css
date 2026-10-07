@@ -366,7 +366,7 @@ h1, h2, h3, h4, h5, h6,
     background-color: var(--color-tarjeta);
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: cover;     /* la foto llena toda la card */
+    background-size: contain;     /* la foto llena toda la card */
     flex-shrink: 0;
 }
 
