@@ -347,7 +347,9 @@ h1, h2, h3, h4, h5, h6,
 .worker-card img, .card-oferta img, .deco-foto {
     width: 100%;
     height: 150px;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
+    background-color: var(--color-tarjeta);
 }
 
 .info-worker, .info-oferta, .deco-detalles {
