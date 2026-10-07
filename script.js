@@ -72,7 +72,6 @@ const supabaseKey = window.ENV?.SUPABASE_KEY;
 
 let _supabase = null;
 let tasaZelleCUP = 450; // Valor por defecto en caso de fallo de red
-let tasaRemesaCUP = 485; // Tasa de remesa por defecto (se puede sobrescribir con 'tasa_remesa' en la tabla 'configuracion')
 
 if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && supabaseKey) {
     _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -80,27 +79,23 @@ if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && s
     console.error("No se encontraron las credenciales de Supabase en config/env.js");
 }
 
-// Función para obtener la tasa Zelle -> CUP desde la tabla 'configuracion'
+// Lee la tasa desde la tabla 'configuracion' (columnas: clave, valor)
+//   clave 'tasa_zelle' -> CUP por 1 Zelle (precios, total en CUP y remesa)
 async function obtenerTasa() {
     if (!_supabase) return;
     try {
         const { data, error } = await _supabase
             .from("configuracion")
-            .select("*")
-            .maybeSingle();
+            .select("clave, valor");
 
-        if (!error && data) {
-            // Lee la propiedad donde se almacena la tasa
-            const tasaConsultada = data.tasa_zelle_cup ?? data.valor ?? data.tasa;
-            if (tasaConsultada && !isNaN(Number(tasaConsultada))) {
-                tasaZelleCUP = Number(tasaConsultada);
-            }
-
-            const tasaRemesaConsultada = data.tasa_remesa;
-            if (tasaRemesaConsultada && !isNaN(Number(tasaRemesaConsultada))) {
-                tasaRemesaCUP = Number(tasaRemesaConsultada);
-            }
+        if (error) {
+            console.error("Error al consultar configuracion:", error);
+            return;
         }
+
+        const fila = (data || []).find(f => f.clave === "tasa_zelle");
+        const tasa = fila ? Number(fila.valor) : 0;
+        if (tasa > 0) tasaZelleCUP = tasa;
     } catch (err) {
         console.error("Error al consultar la tasa en configuracion:", err);
     }
@@ -127,6 +122,7 @@ async function cargarContenido() {
 
   // 1. Consultar la tasa dinámica desde la base de datos
   await obtenerTasa();
+  actualizarRemesa();
 
   // 2. Cargar los productos
   let productos = null;
@@ -451,7 +447,7 @@ function finalizarPedido() {
         : `${totalZelleFinal.toLocaleString()} Zelle`;
 
     const infoRemesa = quiereRemesa
-        ? `${remesa} Zelle (${(remesa * tasaRemesaCUP).toLocaleString()} CUP)`
+        ? `${remesa} Zelle (${(remesa * tasaZelleCUP).toLocaleString()} CUP)`
         : "No";
 
     const mensaje = `*NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
@@ -477,7 +473,7 @@ function actualizarRemesa() {
     const valor = document.getElementById("remesa-input").value;
     const texto = document.getElementById("texto-remesa");
     if (valor && valor > 0) {
-        texto.textContent = "Se entregarán " + (valor * tasaRemesaCUP).toLocaleString() + " pesos";
+        texto.textContent = "Se entregarán " + (valor * tasaZelleCUP).toLocaleString() + " pesos";
     } else {
         texto.textContent = "";
     }
@@ -612,3 +608,32 @@ function toggleMenuTransporte(mostrar) {
     actualizarResumen();
     actualizarResumenFinalEnFormulario();
 }
+
+// --- FOTOS DE DECORACIONES ---
+// Prueba varias extensiones por si el archivo no es .jpg (jpg, jpeg, png, webp)
+const EXTENSIONES_FOTO = ['jpg', 'jpeg', 'png', 'webp', 'JPG', 'JPEG', 'PNG', 'WEBP'];
+
+function cargarFotosDecoracion() {
+    document.querySelectorAll('.deco-foto[data-img]').forEach(foto => {
+        const base = foto.dataset.img;
+        const img = foto.querySelector('img');
+        if (!img) return;
+
+        let intento = 0;
+        const probarSiguiente = () => {
+            if (intento >= EXTENSIONES_FOTO.length) {
+                foto.classList.add('sin-foto');
+                console.warn('No se encontró la foto:', base);
+                return;
+            }
+            img.src = `${base}.${EXTENSIONES_FOTO[intento++]}`;
+        };
+
+        img.onload = () => foto.classList.add('cargada');
+        img.onerror = probarSiguiente;
+        img.loading = 'lazy';
+        probarSiguiente();
+    });
+}
+
+cargarFotosDecoracion();
