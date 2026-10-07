@@ -71,7 +71,7 @@ const supabaseUrl = window.ENV?.SUPABASE_URL;
 const supabaseKey = window.ENV?.SUPABASE_KEY;
 
 let _supabase = null;
-let tasaZelleCUP = 450; // Valor por defecto en caso de fallo de red
+let tasaZelleCUP = null; // Sin valor por defecto: se carga solo desde la tabla 'configuracion' (clave 'tasa_zelle')
 
 if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && supabaseKey) {
     _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -81,6 +81,19 @@ if (typeof supabase !== "undefined" && supabase.createClient && supabaseUrl && s
 
 // Lee la tasa desde la tabla 'configuracion' (columnas: clave, valor)
 //   clave 'tasa_zelle' -> CUP por 1 Zelle (precios, total en CUP y remesa)
+// Convierte Zelle a texto en CUP usando la tasa de la tabla (o avisa si aún no está disponible)
+function textoCUP(zelle) {
+    if (!tasaZelleCUP) return "Tasa no disponible";
+    return `${(zelle * tasaZelleCUP).toLocaleString()} CUP`;
+}
+
+// Recalcula todo lo que depende de la tasa
+function refrescarMontos() {
+    actualizarResumen();
+    actualizarResumenFinalEnFormulario();
+    actualizarRemesa();
+}
+
 async function obtenerTasa() {
     if (!_supabase) return;
     try {
@@ -195,7 +208,6 @@ async function cargarContenido() {
 
     const notaOpcionalHTML = oferta.nota ? `<p style="font-size:0.8rem; opacity:0.8; margin-top:4px;">${escapeHTML(oferta.nota)}</p>` : "";
     const precioZelle = Number(oferta.zelle) || 0;
-    const precioCUP_Vista = precioZelle * tasaZelleCUP;
     const imgSrc = oferta.img ? oferta.img : IMG_FALLBACK;
 
     const cardHTML = `
@@ -206,7 +218,7 @@ async function cargarContenido() {
           ${notaOpcionalHTML}
           <div class="precio-box">
             <span class="p-zelle">${precioZelle} Zelle</span>
-            <span class="p-cup">${precioCUP_Vista.toLocaleString()} CUP</span>
+            ${tasaZelleCUP ? `<span class="p-cup">${textoCUP(precioZelle)}</span>` : ""}
           </div>
         </div>
       </div>`;
@@ -262,17 +274,16 @@ function actualizarResumen() {
     }
 
     const totalZelleFinal = totalZelle + costoTransporteZelle;
-    const totalCUP_Calculado = totalZelleFinal * tasaZelleCUP;
 
     if (displayFormulario) {
         const valorMostrar = (origenSeleccionado === 'cuba') 
-            ? `${totalCUP_Calculado.toLocaleString()} CUP` 
+            ? textoCUP(totalZelleFinal)
             : `${totalZelleFinal.toLocaleString()} Zelle`;
         displayFormulario.innerHTML = `<span>Total a pagar: </span><strong>${valorMostrar}</strong>`;
     }
 
     if (resumenDiv) resumenDiv.innerHTML = html || "<p style='text-align:center;'>Carrito vacío</p>";
-    if (totalDiv) totalDiv.innerHTML = `Total: ${totalZelleFinal} Zelle - ${totalCUP_Calculado.toLocaleString()} CUP`;
+    if (totalDiv) totalDiv.innerHTML = `Total: ${totalZelleFinal} Zelle` + (tasaZelleCUP ? ` - ${textoCUP(totalZelleFinal)}` : "");
     
     const cartCount = document.getElementById("cart-count");
     if (cartCount) cartCount.innerText = totalItems;
@@ -413,6 +424,12 @@ function finalizarPedido() {
         return;
     }
 
+    if ((origenSeleccionado === 'cuba' || quiereRemesa) && !tasaZelleCUP) {
+        alert("No se pudo obtener la tasa del Zelle. Revisa tu conexión e inténtalo de nuevo.");
+        obtenerTasa().then(refrescarMontos);
+        return;
+    }
+
     if (!lugar || !fechaInput) {
         alert("Por favor, completa la ubicación y la fecha del evento.");
         return;
@@ -443,11 +460,11 @@ function finalizarPedido() {
 
     const totalZelleFinal = totalZelleBase + costoTransporteZelle;
     const totalFinalTexto = (origenSeleccionado === 'cuba')
-        ? `${(totalZelleFinal * tasaZelleCUP).toLocaleString()} CUP`
+        ? textoCUP(totalZelleFinal)
         : `${totalZelleFinal.toLocaleString()} Zelle`;
 
     const infoRemesa = quiereRemesa
-        ? `${remesa} Zelle (${(remesa * tasaZelleCUP).toLocaleString()} CUP)`
+        ? `${remesa} Zelle (${textoCUP(remesa)})`
         : "No";
 
     const mensaje = `*NUEVO PEDIDO*\n\n${listaProductos}\n\n` +
@@ -473,7 +490,9 @@ function actualizarRemesa() {
     const valor = document.getElementById("remesa-input").value;
     const texto = document.getElementById("texto-remesa");
     if (valor && valor > 0) {
-        texto.textContent = "Se entregarán " + (valor * tasaZelleCUP).toLocaleString() + " pesos";
+        texto.textContent = tasaZelleCUP
+            ? "Se entregarán " + (valor * tasaZelleCUP).toLocaleString() + " pesos"
+            : "Tasa no disponible por el momento";
     } else {
         texto.textContent = "";
     }
@@ -548,6 +567,7 @@ document.addEventListener("click", function(event) {
 
 function seleccionarOrigen(tipo) {
     origenSeleccionado = tipo;
+    if (!tasaZelleCUP) obtenerTasa().then(refrescarMontos); // reintenta si la tasa no cargó
     const btnCuba = document.getElementById('btn-pago-cuba');
     const btnExterior = document.getElementById('btn-pago-exterior');
     const bloqueDetalles = document.getElementById('campos-detalles-reserva');
@@ -595,7 +615,7 @@ function actualizarResumenFinalEnFormulario() {
 
     if (displayTotal) {
         const textoTotal = (origenSeleccionado === 'cuba') 
-            ? `${(totalZelle * tasaZelleCUP).toLocaleString()} CUP` 
+            ? textoCUP(totalZelle)
             : `${totalZelle.toLocaleString()} Zelle`;
         displayTotal.innerHTML = `<span>Total a pagar: </span><strong>${textoTotal}</strong>`;
     }
