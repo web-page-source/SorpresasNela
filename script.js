@@ -631,7 +631,6 @@ function cargarFotosDecoracion() {
 
         img.onload = () => foto.classList.add('cargada');
         img.onerror = probarSiguiente;
-        img.loading = 'lazy';
         probarSiguiente();
     });
 }

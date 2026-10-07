@@ -360,33 +360,45 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* --- FOTOS DE DECORACIONES ---
-   Todas las cards con el mismo formato (4:3); la foto llena la card, centrada. */
+   La card define el tamaño (ancho 100% x alto 160px, igual que .producto-img del admin). La foto llena SIEMPRE todo el recuadro, centrada:
+   si es estrecha se amplía y si es muy grande se toma la parte del medio.
+   Funciona tanto con <img> como con background-image. */
+.deco-item {
+    isolation: isolate;          /* mantiene la foto dentro de las esquinas redondeadas al hacer hover/presionar */
+}
+
 .deco-foto {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    height: 160px;               /* mismo alto fijo que .producto-img del admin */
     overflow: hidden;
     flex-shrink: 0;
     background-color: var(--color-fondo-body);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 .deco-foto img {
-    display: block;
+    position: absolute;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
+    max-width: none;
+    max-height: none;
     object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    object-position: center center;
+    display: block;
+    pointer-events: none;
 }
 
-.deco-foto.cargada img { opacity: 1; }
+.deco-foto img:not([src]),
+.deco-foto.sin-foto img { visibility: hidden; }
 
 .deco-foto.sin-foto::after {
     content: "Sin foto";
     position: absolute;
     inset: 0;
-    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
