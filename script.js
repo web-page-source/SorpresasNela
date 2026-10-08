@@ -237,7 +237,55 @@ document.addEventListener("click", function(event) {
   if (card) agregarAlCarrito(card.dataset.id);
 });
 
-window.onload = cargarContenido;
+// --- EQUIPO: se carga desde la tabla 'equipo' de Supabase (nombre, funcion, foto) ---
+async function cargarEquipo() {
+  const contenedor = document.getElementById('equipo-container');
+  if (!contenedor) return;
+
+  const mensaje = (texto) => `<p style="text-align:center; grid-column:1/-1;">${texto}</p>`;
+
+  if (!_supabase) {
+    contenedor.innerHTML = mensaje("No se pudo cargar el equipo. Intenta de nuevo más tarde.");
+    return;
+  }
+
+  contenedor.innerHTML = mensaje("Cargando equipo...");
+
+  let miembros = null;
+  let error = null;
+  try {
+    const respuesta = await _supabase
+      .from("equipo")
+      .select("*")
+      .order("id", { ascending: true });
+    miembros = respuesta.data;
+    error = respuesta.error;
+  } catch (err) {
+    error = err;
+  }
+
+  if (error || !miembros) {
+    console.error("Error cargando el equipo:", error);
+    contenedor.innerHTML = mensaje("Error al cargar el equipo");
+    return;
+  }
+
+  if (miembros.length === 0) {
+    contenedor.innerHTML = mensaje("Próximamente conocerás a nuestro equipo...");
+    return;
+  }
+
+  contenedor.innerHTML = miembros.map(m => `
+    <div class="worker-card">
+      <img src="${escapeHTML(m.foto || IMG_FALLBACK)}" alt="${escapeHTML(m.nombre)}" loading="lazy" onerror="this.onerror=null;this.src=IMG_FALLBACK;">
+      <div class="info-worker"><p><strong>${escapeHTML(m.nombre)}</strong></p><span>${escapeHTML(m.funcion)}</span></div>
+    </div>`).join("");
+}
+
+window.onload = () => {
+  cargarContenido();
+  cargarEquipo();
+};
 
 let carrito = [];
 let origenSeleccionado = null;
